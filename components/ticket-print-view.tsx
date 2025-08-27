@@ -19,14 +19,35 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
     setTermsAndConditions(SettingsService.getTermsAndConditions()) // Fetch terms on mount
   }, [])
 
+  const displayName = (ticket.customerFirstname || ticket.customerSurname)
+    ? `${ticket.customerFirstname || ""} ${ticket.customerSurname || ""}`.trim()
+    : ticket.customerName || ""
+
+  const formatted = {
+    estimatedCost: (ticket.estimatedCost ?? 0).toFixed(2),
+    vatAmount: ((ticket.estimatedCost ?? 0) * (ticket.vatRate ?? 0) / 100).toFixed(2),
+    grandTotal: (ticket.grandTotal ?? (ticket.estimatedCost ?? 0)).toFixed(2),
+    totalPaid: (ticket.totalPaid ?? 0).toFixed(2),
+    balanceDue: (ticket.balanceDue ?? 0).toFixed(2),
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white text-black print:shadow-none">
       {/* Letterhead Section */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-blue-600">RepairHub Solutions</h1> {/* Enhanced Business Name */}
-        <p className="text-gray-600">Professional Repair Services</p>
-        <p className="text-sm text-gray-500">123 Tech Lane, Innovation City, UK | Phone: +44 123 456 7890 | Email: info@repairhubsolutions.com</p> {/* Placeholder Contact Details */}
-        <p className="text-sm text-gray-500">Date: {currentDate}</p>
+      <div className="mb-8">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">RepairHub Solutions</h1>
+            <p className="text-sm text-gray-600">Professional Repair Services</p>
+            <p className="text-sm text-gray-500">123 Tech Lane, Innovation City, UK</p>
+            <p className="text-sm text-gray-500">Phone: +44 123 456 7890 | Email: info@repairhubsolutions.com</p>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-gray-600">Date: {currentDate}</div>
+            <div className="text-xl font-semibold mt-4">Repair Ticket</div>
+            <div className="text-lg font-bold">{ticket.trackingId}</div>
+          </div>
+        </div>
       </div>
 
       {/* Ticket Info */}
@@ -38,32 +59,32 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold mb-2">Customer Information</h3>
-              <p>
-                <strong>Name:</strong> {ticket.customerName}
-              </p>
-              <p>
-                <strong>Phone:</strong> {ticket.customerPhone}
-              </p>
-              <p>
-                <strong>Email:</strong> {ticket.customerEmail}
-              </p>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold mb-2">Customer Information</h3>
+                <p>
+                  <strong>Name:</strong> {displayName}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {ticket.customerPhone}
+                </p>
+                <p>
+                  <strong>Email:</strong> {ticket.customerEmail}
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Device Information</h3>
+                <p>
+                  <strong>Brand:</strong> {ticket.deviceBrand}
+                </p>
+                <p>
+                  <strong>Model:</strong> {ticket.deviceModel}
+                </p>
+                <p>
+                  <strong>IMEI/Serial:</strong> {ticket.deviceImei || ticket.deviceSerial || "N/A"}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold mb-2">Device Information</h3>
-              <p>
-                <strong>Brand:</strong> {ticket.deviceBrand}
-              </p>
-              <p>
-                <strong>Model:</strong> {ticket.deviceModel}
-              </p>
-              <p>
-                <strong>IMEI/Serial:</strong> {ticket.deviceImei || ticket.deviceSerial || "N/A"}
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
@@ -91,7 +112,7 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <p>
-                <strong>Estimated Cost:</strong> £{ticket.estimatedCost}
+                <strong>Estimated Cost:</strong> £{formatted.estimatedCost}
               </p>
               <p>
                 <strong>Estimated Time:</strong> {ticket.estimatedTime}
@@ -113,7 +134,7 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
             <CardTitle>Payment Information</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+              <div className="space-y-3">
               {ticket.payments.map((payment, index) => (
                 <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                   <div>
@@ -122,17 +143,17 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
                     </p>
                     <p className="text-sm text-gray-600">{new Date(payment.date).toLocaleDateString("en-GB")}</p>
                   </div>
-                  <p className="font-semibold">£{payment.amount.toFixed(2)}</p>
+                  <p className="font-semibold">£{Number(payment.amount).toFixed(2)}</p>
                 </div>
               ))}
               <Separator />
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total Paid:</span>
-                <span>£{ticket.totalPaid?.toFixed(2) || "0.00"}</span>
+                <span>£{formatted.totalPaid}</span>
               </div>
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Balance Due:</span>
-                <span>£{ticket.balanceDue?.toFixed(2) || ticket.estimatedCost}</span>
+                <span>£{formatted.balanceDue}</span>
               </div>
             </div>
           </CardContent>

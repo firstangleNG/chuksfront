@@ -138,13 +138,16 @@ export function RepairTicketList({ onEditTicket, onDeleteTicket, refreshKey }: R
     const terms = SettingsService.getTermsAndConditions().map(t => `<li>${t}</li>`).join("")
     const paymentsHtml = (ticket.payments || []).map(p => `
       <tr>
-        <td>${p.method}</td>
-        <td>£${p.amount.toFixed(2)}</td>
-        <td>${new Date(p.date).toLocaleDateString()}</td>
+        <td style="padding:8px;border:1px solid #e5e7eb">${p.method}</td>
+        <td style="padding:8px;border:1px solid #e5e7eb">£${Number(p.amount).toFixed(2)}</td>
+        <td style="padding:8px;border:1px solid #e5e7eb">${new Date(p.date).toLocaleDateString()}</td>
       </tr>
     `).join("")
 
-    const grandTotal = (ticket.grandTotal ?? (ticket.estimatedCost || 0))
+    const grandTotal = Number(ticket.grandTotal ?? (ticket.estimatedCost ?? 0))
+    const displayName = (ticket.customerFirstname || ticket.customerSurname)
+      ? `${ticket.customerFirstname || ""} ${ticket.customerSurname || ""}`.trim()
+      : (ticket.customerName || "")
 
     return `<!doctype html>
       <html>
@@ -153,56 +156,61 @@ export function RepairTicketList({ onEditTicket, onDeleteTicket, refreshKey }: R
           <title>Repair Ticket - ${ticket.trackingId}</title>
           <meta name="viewport" content="width=device-width,initial-scale=1" />
           <style>
-            body { font-family: Arial, Helvetica, sans-serif; color: #111827; margin: 0; padding: 24px; }
-            .container { max-width: 900px; margin: 0 auto; }
-            header { text-align: center; margin-bottom: 18px; }
-            header h1 { margin: 0; font-size: 28px; }
-            header p { margin: 2px 0; color: #6b7280; }
-            .card { border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px; margin-bottom: 12px; }
-            .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-            @media (min-width: 768px) { .grid { grid-template-columns: 1fr 1fr; } }
-            table { width: 100%; border-collapse: collapse; }
-            table th, table td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
-            .right { text-align: right; }
-            footer { margin-top: 18px; font-size: 13px; color: #6b7280; }
+            body { font-family: Georgia, 'Times New Roman', serif; color: #111827; margin: 0; padding: 28px; background: #fff }
+            .container { max-width: 820px; margin: 0 auto; }
+            .top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px }
+            .brand { font-weight:700; font-size:22px; color:#111827 }
+            .meta { text-align:right; font-size:12px; color:#6b7280 }
+            .section { border: 1px solid #e5e7eb; padding:14px; border-radius:6px; margin-bottom:12px }
+            .two-col { display:flex; gap:12px }
+            .col { flex:1 }
+            table { width:100%; border-collapse:collapse; margin-top:8px }
+            table th, table td { border:1px solid #e5e7eb; padding:8px; font-size:13px }
+            h3 { margin:0 0 6px 0 }
+            footer { font-size:12px; color:#6b7280; margin-top:14px }
+            @media print { body { margin:0; } .no-print { display:none } }
           </style>
         </head>
         <body>
           <div class="container">
-            <header>
-              <h1>RepairHub</h1>
-              <p>Professional Repair Services</p>
-              <p>123 Tech Lane, Innovation City, UK | Phone: +44 123 456 7890 | Email: info@repairhub.com</p>
-              <p style="margin-top:8px;font-weight:600">Tracking ID: ${ticket.trackingId}</p>
-            </header>
-
-            <section class="card">
-              <div class="grid">
-                <div>
-                  <h3 style="margin:0 0 6px 0">Customer</h3>
-                  <p style="margin:0"><strong>Name:</strong> ${ticket.customerName}</p>
-                  <p style="margin:0"><strong>Email:</strong> ${ticket.customerEmail}</p>
-                  <p style="margin:0"><strong>Phone:</strong> ${ticket.customerPhone}</p>
-                </div>
-                <div>
-                  <h3 style="margin:0 0 6px 0">Device</h3>
-                  <p style="margin:0"><strong>Brand:</strong> ${ticket.deviceBrand}</p>
-                  <p style="margin:0"><strong>Model:</strong> ${ticket.deviceModel}</p>
-                  <p style="margin:0"><strong>IMEI/Serial:</strong> ${ticket.deviceImei || ticket.deviceSerial || 'N/A'}</p>
-                </div>
+            <div class="top">
+              <div class="brand">
+                RepairHub<br/>
+                <span style="font-weight:400;font-size:12px;color:#6b7280">Professional Repair Services</span>
               </div>
-            </section>
+              <div class="meta">
+                <div style="font-weight:700">Repair Ticket</div>
+                <div>Tracking ID: ${ticket.trackingId}</div>
+                <div>Date: ${new Date().toLocaleDateString()}</div>
+              </div>
+            </div>
 
-            <section class="card">
-              <h3 style="margin:0 0 8px 0">Repair Details</h3>
+            <div class="section two-col">
+              <div class="col">
+                <h3>Customer</h3>
+                <p style="margin:2px 0"><strong>Name:</strong> ${displayName}</p>
+                <p style="margin:2px 0"><strong>Email:</strong> ${ticket.customerEmail || ''}</p>
+                <p style="margin:2px 0"><strong>Phone:</strong> ${ticket.customerPhone || ''}</p>
+              </div>
+              <div class="col">
+                <h3>Device</h3>
+                <p style="margin:2px 0"><strong>Brand:</strong> ${ticket.deviceBrand || ''}</p>
+                <p style="margin:2px 0"><strong>Model:</strong> ${ticket.deviceModel || ''}</p>
+                <p style="margin:2px 0"><strong>IMEI/Serial:</strong> ${ticket.deviceImei || ticket.deviceSerial || 'N/A'}</p>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Repair Details</h3>
               <table>
                 <tbody>
-                  <tr><th>Issue Type</th><td>${ticket.issueType}</td></tr>
-                  <tr><th>Status</th><td>${ticket.status}</td></tr>
-                  <tr><th>Assigned Technician</th><td>${ticket.assignedTechnician || 'N/A'}</td></tr>
-                  <tr><th>Estimated Time</th><td>${ticket.estimatedTime}</td></tr>
-                  <tr><th>Estimated Cost</th><td>£${(ticket.estimatedCost || 0).toFixed(2)}</td></tr>
-                  <tr><th>Grand Total</th><td>£${grandTotal.toFixed(2)}</td></tr>
+                  <tr><th style="width:40%">Field</th><th>Value</th></tr>
+                  <tr><td>Issue Type</td><td>${ticket.issueType || ''}</td></tr>
+                  <tr><td>Status</td><td>${ticket.status || ''}</td></tr>
+                  <tr><td>Assigned Technician</td><td>${ticket.assignedTechnician || 'N/A'}</td></tr>
+                  <tr><td>Estimated Time</td><td>${ticket.estimatedTime || ''}</td></tr>
+                  <tr><td>Estimated Cost</td><td>£${Number(ticket.estimatedCost ?? 0).toFixed(2)}</td></tr>
+                  <tr><td>Grand Total</td><td>£${grandTotal.toFixed(2)}</td></tr>
                 </tbody>
               </table>
 
@@ -210,19 +218,19 @@ export function RepairTicketList({ onEditTicket, onDeleteTicket, refreshKey }: R
                 <h4 style="margin:0 0 6px 0">Issue Description</h4>
                 <div style="padding:10px;background:#f9fafb;border-radius:6px;border:1px solid #eef2f7">${ticket.issueDescription || ''}</div>
               </div>
-            </section>
+            </div>
 
-            <section class="card">
-              <h3 style="margin:0 0 8px 0">Payments</h3>
+            <div class="section">
+              <h3>Payments</h3>
               <table>
                 <thead>
                   <tr><th>Method</th><th>Amount</th><th>Date</th></tr>
                 </thead>
                 <tbody>
-                  ${paymentsHtml || '<tr><td colspan="3">No payments recorded</td></tr>'}
+                  ${paymentsHtml || '<tr><td colspan="3" style="padding:8px;border:1px solid #e5e7eb">No payments recorded</td></tr>'}
                 </tbody>
               </table>
-            </section>
+            </div>
 
             <footer>
               <h4 style="margin:0 0 6px 0">Terms & Conditions</h4>
@@ -283,7 +291,7 @@ export function RepairTicketList({ onEditTicket, onDeleteTicket, refreshKey }: R
                   <div>
                     <CardTitle className="text-lg">{ticket.trackingId}</CardTitle>
                     <CardDescription>
-                      {ticket.customerName} • {ticket.deviceBrand} {ticket.deviceModel}
+                      {(ticket.customerFirstname || ticket.customerSurname) ? `${ticket.customerFirstname || ''} ${ticket.customerSurname || ''}`.trim() : ticket.customerName} • {ticket.deviceBrand} {ticket.deviceModel}
                     </CardDescription>
                   </div>
                   <Badge className={getStatusColor(ticket.status)}>{ticket.status}</Badge>
@@ -298,13 +306,13 @@ export function RepairTicketList({ onEditTicket, onDeleteTicket, refreshKey }: R
                   <div>
                     <p className="text-sm font-medium">Total Cost</p>
                     <p className="text-sm text-muted-foreground">
-                      £{(ticket.grandTotal ?? ticket.estimatedCost).toFixed(2)}
+                      £{(Number(ticket.grandTotal ?? ticket.estimatedCost ?? 0)).toFixed(2)}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Amount Paid</p>
                     <p className="text-sm font-semibold text-green-600">
-                      £{(ticket.totalPaid ?? 0).toFixed(2)}
+                      £{(Number(ticket.totalPaid ?? 0)).toFixed(2)}
                     </p>
                   </div>
                 </div>

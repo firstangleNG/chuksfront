@@ -74,6 +74,9 @@ export function InvoiceGenerator({ ticket, onInvoiceGenerated, onCancel }: Invoi
   const subtotal = laborCost + partsCost
   const taxAmount = subtotal * 0.08
   const totalAmount = subtotal + taxAmount
+  const displayName = (ticket.customerFirstname || ticket.customerSurname)
+    ? `${ticket.customerFirstname || ''} ${ticket.customerSurname || ''}`.trim()
+    : ticket.customerName
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -92,7 +95,7 @@ export function InvoiceGenerator({ ticket, onInvoiceGenerated, onCancel }: Invoi
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="font-medium">Customer</p>
-                <p className="text-muted-foreground">{ticket.customerName}</p>
+                <p className="text-muted-foreground">{displayName}</p>
               </div>
               <div>
                 <p className="font-medium">Device</p>
