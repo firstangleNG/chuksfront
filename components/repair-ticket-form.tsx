@@ -35,13 +35,14 @@ const issueTypes = [
   "Other",
 ]
 
-const statusOptions = ["Diagnosing", "Waiting for Customer Response", "Waiting for Parts", "In Progress", "Completed"]
+const statusOptions = ["Diagnosing", "Waiting for Customer Response", "Waiting for Payment", "Waiting for Parts", "In Progress", "Completed"]
 
 const paymentMethods = ["Cash", "Bank Transfer", "Card"]
 
 export function RepairTicketForm({ editTicket, onSuccess, onCancel }: RepairTicketFormProps) {
   const [formData, setFormData] = useState({
-    customerName: "",
+  firstname: "",
+  surname: "",
     customerEmail: "",
     customerPhone: "",
     deviceBrand: "",
@@ -81,7 +82,8 @@ export function RepairTicketForm({ editTicket, onSuccess, onCancel }: RepairTick
   useEffect(() => {
     if (editTicket) {
       setFormData({
-        customerName: editTicket.customerName,
+  firstname: editTicket.customerFirstname || editTicket.customerName || "",
+  surname: editTicket.customerSurname || "",
         customerEmail: editTicket.customerEmail,
         customerPhone: editTicket.customerPhone,
         deviceBrand: editTicket.deviceBrand,
@@ -130,7 +132,8 @@ export function RepairTicketForm({ editTicket, onSuccess, onCancel }: RepairTick
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.customerName.trim()) newErrors.customerName = "Customer name is required"
+  if (!formData.firstname.trim()) newErrors.firstname = "First name is required"
+  if (!formData.surname.trim()) newErrors.surname = "Surname is required"
     if (!formData.customerEmail.trim()) newErrors.customerEmail = "Email is required"
     else if (!/\S+@\S+\.\S+/.test(formData.customerEmail)) newErrors.customerEmail = "Invalid email format"
     if (!formData.customerPhone.trim()) newErrors.customerPhone = "Phone number is required"
@@ -159,7 +162,10 @@ export function RepairTicketForm({ editTicket, onSuccess, onCancel }: RepairTick
       let ticket: RepairTicket
 
       const ticketData = {
-        customerName: formData.customerName,
+  // keep legacy customerName for compatibility
+  customerName: `${formData.firstname} ${formData.surname}`.trim(),
+  customerFirstname: formData.firstname,
+  customerSurname: formData.surname,
         customerEmail: formData.customerEmail,
         customerPhone: formData.customerPhone,
         deviceBrand: formData.deviceBrand,
@@ -227,16 +233,30 @@ export function RepairTicketForm({ editTicket, onSuccess, onCancel }: RepairTick
             <h3 className="text-lg font-semibold">Customer Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="customerName">Customer Name *</Label>
+                <Label htmlFor="firstname">First Name *</Label>
                 <Input
-                  id="customerName"
-                  value={formData.customerName}
-                  onChange={(e) => handleInputChange("customerName", e.target.value)}
-                  placeholder="Enter customer name"
+                  id="firstname"
+                  value={formData.firstname}
+                  onChange={(e) => handleInputChange("firstname", e.target.value)}
+                  placeholder="Enter first name"
                 />
-                {errors.customerName && (
+                {errors.firstname && (
                   <Alert variant="destructive">
-                    <AlertDescription>{errors.customerName}</AlertDescription>
+                    <AlertDescription>{errors.firstname}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="surname">Surname *</Label>
+                <Input
+                  id="surname"
+                  value={formData.surname}
+                  onChange={(e) => handleInputChange("surname", e.target.value)}
+                  placeholder="Enter surname"
+                />
+                {errors.surname && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{errors.surname}</AlertDescription>
                   </Alert>
                 )}
               </div>
@@ -255,20 +275,20 @@ export function RepairTicketForm({ editTicket, onSuccess, onCancel }: RepairTick
                   </Alert>
                 )}
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customerPhone">Phone Number *</Label>
-              <Input
-                id="customerPhone"
-                value={formData.customerPhone}
-                onChange={(e) => handleInputChange("customerPhone", e.target.value)}
-                placeholder="Enter phone number"
-              />
-              {errors.customerPhone && (
-                <Alert variant="destructive">
-                  <AlertDescription>{errors.customerPhone}</AlertDescription>
-                </Alert>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="customerPhone">Phone Number *</Label>
+                <Input
+                  id="customerPhone"
+                  value={formData.customerPhone}
+                  onChange={(e) => handleInputChange("customerPhone", e.target.value)}
+                  placeholder="Enter phone number"
+                />
+                {errors.customerPhone && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{errors.customerPhone}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
             </div>
           </div>
 

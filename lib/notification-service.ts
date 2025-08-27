@@ -14,8 +14,8 @@ const DEFAULT_TEMPLATES: NotificationTemplate[] = [
     channel: "both",
     subject: "Repair Status Update - {{trackingId}}",
     template:
-      "Hi {{customerName}}, your device repair ({{trackingId}}) status has been updated to: {{status}}. {{additionalInfo}}",
-    variables: ["customerName", "trackingId", "status", "additionalInfo"],
+      "Hi {{customerFirstname}} {{customerSurname}}, your device repair ({{trackingId}}) status has been updated to: {{status}}. {{additionalInfo}}",
+    variables: ["customerFirstname", "customerSurname", "trackingId", "status", "additionalInfo"],
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -27,8 +27,8 @@ const DEFAULT_TEMPLATES: NotificationTemplate[] = [
     channel: "both",
     subject: "Payment Due - {{trackingId}}",
     template:
-      "Hi {{customerName}}, your repair invoice for {{trackingId}} is due. Amount: £{{amount}}. Please pay at your earliest convenience.",
-    variables: ["customerName", "trackingId", "amount"],
+      "Hi {{customerFirstname}} {{customerSurname}}, your repair invoice for {{trackingId}} is due. Amount: £{{amount}}. Please pay at your earliest convenience.",
+    variables: ["customerFirstname", "customerSurname", "trackingId", "amount"],
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -40,8 +40,8 @@ const DEFAULT_TEMPLATES: NotificationTemplate[] = [
     channel: "both",
     subject: "Repair Complete - {{trackingId}}",
     template:
-      "Great news {{customerName}}! Your device repair ({{trackingId}}) is complete and ready for pickup. Please visit our store during business hours.",
-    variables: ["customerName", "trackingId"],
+      "Great news {{customerFirstname}} {{customerSurname}}! Your device repair ({{trackingId}}) is complete and ready for pickup. Please visit our store during business hours.",
+    variables: ["customerFirstname", "customerSurname", "trackingId"],
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -217,7 +217,9 @@ export class NotificationService {
     }
 
     await this.sendNotification(ticket.customerId, "status_update", {
-      customerName: ticket.customerName,
+  customerFirstname: ticket.customerFirstname || "",
+  customerSurname: ticket.customerSurname || "",
+  customerName: ticket.customerName || `${ticket.customerFirstname || ""} ${ticket.customerSurname || ""}`.trim(),
       customerEmail: ticket.customerEmail,
       customerPhone: ticket.customerPhone,
       trackingId: ticket.trackingId,
@@ -229,7 +231,9 @@ export class NotificationService {
   // Send completion notice
   static async sendCompletionNotice(ticket: RepairTicket): Promise<void> {
     await this.sendNotification(ticket.customerId, "completion_notice", {
-      customerName: ticket.customerName,
+  customerFirstname: ticket.customerFirstname || "",
+  customerSurname: ticket.customerSurname || "",
+  customerName: ticket.customerName || `${ticket.customerFirstname || ""} ${ticket.customerSurname || ""}`.trim(),
       customerEmail: ticket.customerEmail,
       customerPhone: ticket.customerPhone,
       trackingId: ticket.trackingId,

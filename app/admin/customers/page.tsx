@@ -18,7 +18,8 @@ import type { RepairTicket, User } from "@/types"
 import { Plus, Users, Phone, Mail, Printer, Send } from "lucide-react"
 
 interface CustomerFormData {
-  name: string
+  firstname: string
+  surname: string
   email: string
   phone: string
   deviceBrand: string
@@ -27,8 +28,8 @@ interface CustomerFormData {
   deviceSerial: string
   issueType: string
   issueDescription: string
-  estimatedCost: number
-  estimatedTime: number
+  estimatedCost: string
+  estimatedTime: string
 }
 
 function CustomersContent() {
@@ -37,7 +38,8 @@ function CustomersContent() {
   const [createdTicket, setCreatedTicket] = useState<RepairTicket | null>(null)
   const [customers, setCustomers] = useState<User[]>([])
   const [formData, setFormData] = useState<CustomerFormData>({
-    name: "",
+    firstname: "",
+    surname: "",
     email: "",
     phone: "",
     deviceBrand: "",
@@ -46,8 +48,8 @@ function CustomersContent() {
     deviceSerial: "",
     issueType: "",
     issueDescription: "",
-    estimatedCost: 0,
-    estimatedTime: 1,
+    estimatedCost: "0",
+    estimatedTime: "1",
   })
 
   const issueTypes = [
@@ -94,8 +96,8 @@ function CustomersContent() {
       const estimate = costEstimates[value as string] || { cost: 100, time: 3 }
       setFormData((prev) => ({
         ...prev,
-        estimatedCost: estimate.cost,
-        estimatedTime: estimate.time,
+        estimatedCost: estimate.cost.toString(),
+        estimatedTime: estimate.time.toString(),
       }))
     }
   }
@@ -105,14 +107,15 @@ function CustomersContent() {
 
     try {
       // Create or find customer
-      let customer = customers.find((c) => c.email === formData.email)
+      let customer: User | undefined = customers.find((c) => c.email === formData.email)
 
       if (!customer) {
         // Create new customer
         const users = JSON.parse(localStorage.getItem("users") || "[]")
         customer = {
           id: Date.now().toString(),
-          name: formData.name,
+          firstname: formData.firstname,
+          surname: formData.surname,
           email: formData.email,
           phone: formData.phone,
           role: "customer",
@@ -126,7 +129,8 @@ function CustomersContent() {
       // Create repair ticket
       const ticket = RepairService.createTicket({
         customerId: customer.id,
-        customerName: formData.name,
+        customerFirstname: formData.firstname,
+        customerSurname: formData.surname,
         customerEmail: formData.email,
         customerPhone: formData.phone,
         deviceBrand: formData.deviceBrand,
@@ -135,15 +139,15 @@ function CustomersContent() {
         deviceSerial: formData.deviceSerial,
         issueType: formData.issueType,
         issueDescription: formData.issueDescription,
-        estimatedCost: formData.estimatedCost,
-        estimatedTime: formData.estimatedTime,
+        estimatedCost: Number(formData.estimatedCost),
+        estimatedTime: `${formData.estimatedTime} day(s)`,
         assignedTechnician: "FirstAngle",
         status: "Pending",
       })
 
       // Send notification
       await NotificationService.sendNotification(customer.id, "sms", "repair_created", {
-        trackingId: ticket.trackingId,
+        ...ticket,
         deviceModel: formData.deviceModel,
       })
 
@@ -153,7 +157,8 @@ function CustomersContent() {
 
       // Reset form
       setFormData({
-        name: "",
+        firstname: "",
+        surname: "",
         email: "",
         phone: "",
         deviceBrand: "",
@@ -162,8 +167,8 @@ function CustomersContent() {
         deviceSerial: "",
         issueType: "",
         issueDescription: "",
-        estimatedCost: 0,
-        estimatedTime: 1,
+        estimatedCost: "0",
+        estimatedTime: "1",
       })
     } catch (error) {
       console.error("Error creating customer and ticket:", error)
@@ -177,7 +182,7 @@ function CustomersContent() {
   const handleEmail = async () => {
     if (createdTicket) {
       await NotificationService.sendNotification(createdTicket.customerId, "email", "repair_created", {
-        trackingId: createdTicket.trackingId,
+        ...createdTicket,
         deviceModel: createdTicket.deviceModel,
       })
       alert("Ticket details emailed to customer!")
@@ -218,7 +223,7 @@ function CustomersContent() {
                     <h3 className="font-semibold mb-2">Customer Information</h3>
                     <div className="space-y-1 text-sm">
                       <p>
-                        <strong>Name:</strong> {createdTicket.customerName}
+                        <strong>Name:</strong> {createdTicket.customerFirstname} {createdTicket.customerSurname}
                       </p>
                       <p>
                         <strong>Email:</strong> {createdTicket.customerEmail}
@@ -281,11 +286,11 @@ function CustomersContent() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm">
-                        <strong>Estimated Time:</strong> {createdTicket.estimatedTime} day(s)
+                        <strong>Estimated Time:</strong> {createdTicket.estimatedTime}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold">Estimated Cost: ${createdTicket.estimatedCost}</p>
+                      <p className="text-lg font-bold">Estimated Cost: £{createdTicket.estimatedCost.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
@@ -330,11 +335,20 @@ function CustomersContent() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Customer Name *</Label>
+                      <Label htmlFor="firstname">Customer First Name *</Label>
                       <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        id="firstname"
+                        value={formData.firstname}
+                        onChange={(e) => handleInputChange("firstname", e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="surname">Customer Surname *</Label>
+                      <Input
+                        id="surname"
+                        value={formData.surname}
+                        onChange={(e) => handleInputChange("surname", e.target.value)}
                         required
                       />
                     </div>
@@ -432,24 +446,22 @@ function CustomersContent() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="estimatedCost">Estimated Cost ($)</Label>
+                          <Label htmlFor="estimatedCost">Estimated Cost (£)</Label>
                           <Input
                             id="estimatedCost"
                             type="number"
                             value={formData.estimatedCost}
-                            onChange={(e) => handleInputChange("estimatedCost", Number.parseFloat(e.target.value) || 0)}
+                            onChange={(e) => handleInputChange("estimatedCost", e.target.value)}
                             min="0"
                             step="0.01"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="estimatedTime">Estimated Time (days)</Label>
+                          <Label htmlFor="estimatedTime">Estimated Time (e.g. 2-3 days)</Label>
                           <Input
                             id="estimatedTime"
-                            type="number"
                             value={formData.estimatedTime}
-                            onChange={(e) => handleInputChange("estimatedTime", Number.parseInt(e.target.value) || 1)}
-                            min="1"
+                            onChange={(e) => handleInputChange("estimatedTime", e.target.value)}
                           />
                         </div>
                       </div>
@@ -482,7 +494,7 @@ function CustomersContent() {
                       {customers.slice(0, 5).map((customer) => (
                         <div key={customer.id} className="flex justify-between items-center p-3 border rounded-lg">
                           <div>
-                            <p className="font-medium">{customer.name}</p>
+                            <p className="font-medium">{customer.firstname} {customer.surname}</p>
                             <p className="text-sm text-muted-foreground flex items-center gap-1">
                               <Mail className="h-3 w-3" />
                               {customer.email}

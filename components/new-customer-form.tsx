@@ -18,7 +18,8 @@ interface NewCustomerFormProps {
 
 export function NewCustomerForm({ onCustomerCreated, onBack }: NewCustomerFormProps) {
   const [formData, setFormData] = useState({
-    name: "",
+    firstname: "",
+    surname: "",
     email: "",
     phone: "",
     address: "",
@@ -29,7 +30,8 @@ export function NewCustomerForm({ onCustomerCreated, onBack }: NewCustomerFormPr
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.name.trim()) newErrors.name = "Name is required"
+    if (!formData.firstname.trim()) newErrors.firstname = "FirstName is required"
+    if (!formData.surname.trim()) newErrors.surname = "Surname is required"
     if (!formData.email.trim()) newErrors.email = "Email is required"
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format"
     if (!formData.phone.trim()) newErrors.phone = "Phone number is required"
@@ -59,7 +61,8 @@ export function NewCustomerForm({ onCustomerCreated, onBack }: NewCustomerFormPr
       // Create new customer
       const newCustomer: User = {
         id: Date.now().toString(),
-        name: formData.name,
+        firstname: formData.firstname,
+        surname: formData.surname,
         email: formData.email,
         phone: formData.phone,
         role: "customer",
@@ -100,16 +103,31 @@ export function NewCustomerForm({ onCustomerCreated, onBack }: NewCustomerFormPr
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name *</Label>
+            <Label htmlFor="firstname">First Name *</Label>
             <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              placeholder="Enter customer's full name"
+              id="firstname"
+              value={formData.firstname}
+              onChange={(e) => handleInputChange("firstname", e.target.value)}
+              placeholder="Enter customer's first name"
             />
-            {errors.name && (
+            {errors.firstname && (
               <Alert variant="destructive">
-                <AlertDescription>{errors.name}</AlertDescription>
+                <AlertDescription>{errors.firstname}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="surname">Surname *</Label>
+            <Input
+              id="surname"
+              value={formData.surname}
+              onChange={(e) => handleInputChange("surname", e.target.value)}
+              placeholder="Enter customer's surname"
+            />
+            {errors.surname && (
+              <Alert variant="destructive">
+                <AlertDescription>{errors.surname}</AlertDescription>
               </Alert>
             )}
           </div>

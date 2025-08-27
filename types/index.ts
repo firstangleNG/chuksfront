@@ -1,6 +1,7 @@
 export interface User {
   id: string
-  name: string
+  firstname: string
+  surname: string
   email: string
   phone: string
   role: "superadmin" | "admin" | "customer"
@@ -22,6 +23,9 @@ export interface RepairTicket {
   trackingId: string
   customerId: string
   customerName: string
+  // Prefer separate name fields
+  customerFirstname: string
+  customerSurname: string
   customerEmail: string
   customerPhone: string
   deviceBrand: string
@@ -65,6 +69,9 @@ export interface Invoice {
   repairTicketId: string
   trackingId: string
   customerName: string
+  // Optional separate name fields
+  customerFirstname?: string
+  customerSurname?: string
   customerEmail: string
   customerPhone: string
   deviceInfo: string

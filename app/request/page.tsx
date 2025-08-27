@@ -31,7 +31,8 @@ export default function RequestRepairPage() {
   const [view, setView] = useState<"form" | "success">("form")
   const [createdTicket, setCreatedTicket] = useState<RepairTicket | null>(null)
   const [formData, setFormData] = useState({
-    customerName: "",
+  firstname: "",
+  surname: "",
     customerEmail: "",
     customerPhone: "",
     deviceBrand: "",
@@ -47,7 +48,8 @@ export default function RequestRepairPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.customerName.trim()) newErrors.customerName = "Name is required"
+  if (!formData.firstname.trim()) newErrors.firstname = "First name is required"
+  if (!formData.surname.trim()) newErrors.surname = "Surname is required"
     if (!formData.customerEmail.trim()) newErrors.customerEmail = "Email is required"
     else if (!/\S+@\S+\.\S+/.test(formData.customerEmail)) newErrors.customerEmail = "Invalid email format"
     if (!formData.customerPhone.trim()) newErrors.customerPhone = "Phone number is required"
@@ -73,7 +75,9 @@ export default function RequestRepairPage() {
 
       const ticket = RepairService.createTicket({
         customerId: "online-customer",
-        customerName: formData.customerName,
+        customerName: `${formData.firstname} ${formData.surname}`.trim(),
+        customerFirstname: formData.firstname,
+        customerSurname: formData.surname,
         customerEmail: formData.customerEmail,
         customerPhone: formData.customerPhone,
         deviceBrand: formData.deviceBrand,
@@ -255,18 +259,36 @@ export default function RequestRepairPage() {
                 <h3 className="text-lg font-semibold">Your Information</h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="customerName">Full Name *</Label>
-                    <Input
-                      id="customerName"
-                      value={formData.customerName}
-                      onChange={(e) => handleInputChange("customerName", e.target.value)}
-                      placeholder="Enter your full name"
-                    />
-                    {errors.customerName && (
-                      <Alert variant="destructive">
-                        <AlertDescription>{errors.customerName}</AlertDescription>
-                      </Alert>
-                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstname">First Name *</Label>
+                        <Input
+                          id="firstname"
+                          value={formData.firstname}
+                          onChange={(e) => handleInputChange("firstname", e.target.value)}
+                          placeholder="Enter your first name"
+                        />
+                        {errors.firstname && (
+                          <Alert variant="destructive">
+                            <AlertDescription>{errors.firstname}</AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="surname">Surname *</Label>
+                        <Input
+                          id="surname"
+                          value={formData.surname}
+                          onChange={(e) => handleInputChange("surname", e.target.value)}
+                          placeholder="Enter your surname"
+                        />
+                        {errors.surname && (
+                          <Alert variant="destructive">
+                            <AlertDescription>{errors.surname}</AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="customerEmail">Email Address *</Label>

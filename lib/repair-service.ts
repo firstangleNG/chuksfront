@@ -38,8 +38,16 @@ export class RepairService {
       localStorage.setItem(COUNTER_KEY, nextCounter.toString());
     }
 
-    const newTicket: RepairTicket = {
+    // Ensure legacy customerName exists while allowing firstname/surname
+    const normalized = {
       ...ticketData,
+      customerName: ticketData.customerName || `${(ticketData as any).customerFirstname || ""} ${(ticketData as any).customerSurname || ""}`.trim(),
+      customerFirstname: (ticketData as any).customerFirstname,
+      customerSurname: (ticketData as any).customerSurname,
+    }
+
+    const newTicket: RepairTicket = {
+      ...normalized,
       id: Date.now().toString(),
       trackingId: generateTrackingId(nextCounter),
       createdAt: new Date().toISOString(),
@@ -66,11 +74,18 @@ export class RepairService {
     const oldStatus = tickets[index].status
     const oldTotalPaid = tickets[index].totalPaid
 
-    tickets[index] = {
+    // Normalize updates to keep customerName in sync if firstname/surname provided
+    const updated = {
       ...tickets[index],
       ...updates,
+      customerName:
+        (updates as any).customerName || `${(updates as any).customerFirstname || tickets[index].customerFirstname || ""} ${(updates as any).customerSurname || tickets[index].customerSurname || ""}`.trim(),
+      customerFirstname: (updates as any).customerFirstname || tickets[index].customerFirstname,
+      customerSurname: (updates as any).customerSurname || tickets[index].customerSurname,
       updatedAt: new Date().toISOString(),
     }
+
+    tickets[index] = updated
 
     this.saveTickets(tickets)
 
