@@ -215,7 +215,7 @@ export function InvoiceList({ onViewInvoice, onProcessPayment }: InvoiceListProp
             Manage and track all your invoices
           </p>
         </div>
-        <Button onClick={() => {}}>
+        <Button onClick={handleCreateInvoice}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Create Invoice
         </Button>
