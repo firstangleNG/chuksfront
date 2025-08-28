@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -109,11 +110,13 @@ const InvoiceViewModal = ({ invoice, onClose }: InvoiceViewModalProps) => {
 }
 
 export function InvoiceList({ onViewInvoice, onProcessPayment }: InvoiceListProps) {
+  const router = useRouter()
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
+  const [selectedTicket, setSelectedTicket] = useState<any | null>(null)
   const [isViewerOpen, setIsViewerOpen] = useState(false)
   const [userRole, setUserRole] = useState<string>('')
 
