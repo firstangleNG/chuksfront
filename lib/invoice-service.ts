@@ -33,20 +33,40 @@ export class InvoiceService {
     localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify(payments))
   }
 
-  static generateInvoiceFromTicket(ticket: RepairTicket, laborCost = 0, partsCost = 0): Invoice {
+  static generateInvoiceFromTicket(ticket: RepairTicket, laborCost = 0, partsCost = 0): Invoice | null {
+    // Only generate invoice if ticket is completed
+    if (ticket.status !== 'completed') {
+      console.warn('Cannot generate invoice: Ticket is not in completed status')
+      return null
+    }
+
+    // Check if ticket is fully paid
+    const balanceDue = (ticket.balanceDue || 0) <= 0
+    if (!balanceDue) {
+      console.warn('Cannot generate invoice: Ticket has outstanding balance')
+      return null
+    }
+
     const invoices = this.getInvoices()
     const subtotal = laborCost + partsCost
     const taxRate = 0.08 // 8% tax
     const taxAmount = subtotal * taxRate
     const totalAmount = subtotal + taxAmount
 
+    // Check if invoice already exists for this ticket
+    const existingInvoice = invoices.find(inv => inv.repairTicketId === ticket.id)
+    if (existingInvoice) {
+      console.log('Invoice already exists for this ticket:', existingInvoice.id)
+      return existingInvoice
+    }
+
     const newInvoice: Invoice = {
-      id: Date.now().toString(),
+      id: `INV-${Date.now()}`,
       repairTicketId: ticket.id,
       trackingId: ticket.trackingId,
-  customerName: ticket.customerName || `${ticket.customerFirstname || ""} ${ticket.customerSurname || ""}`.trim(),
-  customerFirstname: ticket.customerFirstname,
-  customerSurname: ticket.customerSurname,
+      customerName: ticket.customerName || `${ticket.customerFirstname || ""} ${ticket.customerSurname || ""}`.trim(),
+      customerFirstname: ticket.customerFirstname,
+      customerSurname: ticket.customerSurname,
       customerEmail: ticket.customerEmail,
       customerPhone: ticket.customerPhone,
       deviceInfo: `${ticket.deviceBrand} ${ticket.deviceModel}`,
@@ -55,8 +75,10 @@ export class InvoiceService {
       partsCost,
       taxAmount,
       totalAmount,
-      paymentStatus: "pending",
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+      paymentStatus: "paid", // Since we check for full payment before creating
+      paymentMethod: ticket.payments?.[0]?.method || "unknown",
+      paidAt: new Date().toISOString(),
+      dueDate: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }

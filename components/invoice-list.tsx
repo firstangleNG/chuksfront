@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { InvoiceService } from "@/lib/invoice-service"
 import type { Invoice } from "@/types"
-import { Search, Eye, DollarSign, Calendar, AlertTriangle, X } from "lucide-react"
+import { Search, Eye, DollarSign, Calendar, AlertTriangle, X, PlusCircle } from "lucide-react"
 import { RepairService } from "@/lib/repair-service"
 import { SettingsService } from "@/lib/settings-service"
 import { InvoicePrintView } from "./invoice-print-view"
@@ -174,58 +174,73 @@ export function InvoiceList({ onViewInvoice, onProcessPayment }: InvoiceListProp
     return invoice.paymentStatus === "pending" && new Date(invoice.dueDate) < new Date()
   }
 
+  const handleCreateInvoice = () => {
+    router.push('/invoices/create')
+  }
+
   const handleViewInvoice = async (invoice: Invoice) => {
-    if (userRole !== 'admin' && userRole !== 'superadmin') {
-      alert('You do not have permission to view invoice details')
-      return
-    }
-    
     try {
-      // Fetch the full invoice with payments
-      const fullInvoice = InvoiceService.getInvoiceById(invoice.id)
-      if (fullInvoice) {
-        setSelectedInvoice(fullInvoice)
+      const tickets = await RepairService.getTickets()
+      const ticket = tickets.find(t => t.id === invoice.repairTicketId)
+      if (ticket) {
+        setSelectedTicket(ticket)
+        setSelectedInvoice(invoice)
         setIsViewerOpen(true)
+        if (onViewInvoice) onViewInvoice(invoice)
       } else {
-        console.error('Invoice not found')
+        console.error('Ticket not found for invoice:', invoice.id)
       }
     } catch (error) {
-      console.error('Error fetching invoice details:', error)
+      console.error('Error fetching ticket details:', error)
     }
   }
 
   const handleCloseViewer = () => {
     setIsViewerOpen(false)
     setSelectedInvoice(null)
+    setSelectedTicket(null)
   }
 
   return (
-    <>
-      <div className="space-y-6">
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by tracking ID, customer name, or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="overdue">Overdue</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
+    <div className="space-y-6">
+      {/* Header with title and create button */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Invoices</h2>
+          <p className="text-muted-foreground">
+            Manage and track all your invoices
+          </p>
         </div>
+        <Button onClick={() => {}}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Create Invoice
+        </Button>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by tracking ID, customer name, or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="overdue">Overdue</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* Invoices List */}
       <div className="space-y-4">
