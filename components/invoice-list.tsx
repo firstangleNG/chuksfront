@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Printer } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,7 +32,7 @@ const InvoiceViewModal = ({ invoice, onClose }: InvoiceViewModalProps) => {
 
   useEffect(() => {
     if (invoice.repairTicketId) {
-      const t = RepairService.getTicket(invoice.repairTicketId)
+      const t = RepairService.getTicketById(invoice.repairTicketId)
       setTicket(t || null)
     } else {
       const t = RepairService.getTicketByTrackingId(invoice.trackingId)
@@ -359,6 +360,7 @@ export function InvoiceList({ onViewInvoice, onProcessPayment }: InvoiceListProp
         </div>
       </DialogContent>
     </Dialog>
+    </div>
   )
 }
 
