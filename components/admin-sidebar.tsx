@@ -69,10 +69,10 @@ export function AdminSidebar() {
           {/* Header */}
           <div className="flex items-center gap-3 p-6 border-b">
             <div className="p-1 bg-transparent rounded-lg">
-              <Image src="/computerhub.png" alt="ComputerHubUK" width={36} height={36} />
+              <Image src="/computerhub.png" alt="Chukticketingsystem" width={36} height={36} />
             </div>
             <div>
-              <h1 className="text-lg font-bold">ComputerHubUK</h1>
+              <h1 className="text-lg font-bold">Chukticketingsystem</h1>
               <p className="text-xs text-muted-foreground">Admin Panel</p>
             </div>
           </div>

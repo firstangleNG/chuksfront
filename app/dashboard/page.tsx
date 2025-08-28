@@ -45,13 +45,13 @@ function DashboardContent() {
   const getWelcomeMessage = (role: string) => {
     switch (role) {
       case "superadmin":
-        return "You have full system access and can manage all aspects of ComputerHubUK."
+        return "You have full system access and can manage all aspects of Chukticketingsystem."
       case "admin":
         return "You can manage repair tickets, customers, and shop operations."
       case "customer":
         return "Track your repair requests and manage your account."
       default:
-        return "Welcome to ComputerHubUK!"
+        return "Welcome to Chukticketingsystem!"
     }
   }
 
@@ -64,7 +64,7 @@ function DashboardContent() {
               <div className="p-2 bg-primary rounded-lg">
                 <Wrench className="h-5 w-5 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-bold">ComputerHubUK</h1>
+              <h1 className="text-xl font-bold">Chukticketingsystem</h1>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">

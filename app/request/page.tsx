@@ -119,7 +119,7 @@ export default function RequestRepairPage() {
                 <div className="p-2 bg-primary rounded-lg">
                   <Wrench className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <h1 className="text-xl font-bold">ComputerHubUK</h1>
+                <h1 className="text-xl font-bold">Chukticketingsystem</h1>
               </div>
               <div className="flex items-center gap-4">
                 <Button variant="outline" asChild>
@@ -227,7 +227,7 @@ export default function RequestRepairPage() {
               <div className="p-2 bg-primary rounded-lg">
                 <Wrench className="h-5 w-5 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-bold">ComputerHubUK</h1>
+              <h1 className="text-xl font-bold">Chukticketingsystem</h1>
             </div>
             <div className="flex items-center gap-4">
               <Button variant="outline" asChild>

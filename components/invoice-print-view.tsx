@@ -36,17 +36,17 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
             <div className="relative w-10 h-10">
               <Image 
                 src="/letterhead.jpeg" 
-                alt="ComputerHubUK Logo" 
+                alt="Chukticketingsystem Logo" 
                 fill
                 className="object-contain rounded"
                 priority
               />
             </div>
-            <h1 className="text-lg font-bold">ComputerHubUK</h1>
+            <h1 className="text-lg font-bold">Chukticketingsystem</h1>
           </div>
           <p className="text-xs text-gray-600">Professional Computer Repairs & IT Services</p>
           <p className="text-xs text-gray-600">123 Tech Street, London, UK</p>
-          <p className="text-xs text-gray-600">Phone: 020 1234 5678 | Email: info@computerhubuk.com</p>
+          <p className="text-xs text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
         </div>
         <div className="text-right">
           <h2 className="text-base font-semibold">INVOICE</h2>
@@ -231,7 +231,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
           <div>
             <h4 className="font-semibold text-gray-700 mb-1">Payment Information</h4>
             <p className="text-gray-600 mb-2">
-              Please make checks payable to <span className="font-medium">ComputerHubUK Ltd</span>.
+              Please make checks payable to <span className="font-medium">Chukticketingsystem Ltd</span>.
               For bank transfers, please use the following details:
             </p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -241,7 +241,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
               </div>
               <div>
                 <p className="text-gray-500">Account Name:</p>
-                <p className="font-medium">ComputerHubUK Ltd</p>
+                <p className="font-medium">Chukticketingsystem Ltd</p>
               </div>
               <div>
                 <p className="text-gray-500">Sort Code:</p>
@@ -256,7 +256,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
         </div>
         <div className="mt-4 pt-3 border-t border-gray-200">
           <p className="text-2xs text-gray-500 text-center">
-            Thank you for your business. If you have any questions about this invoice, please contact us at info@computerhubuk.com or call 020 1234 5678.
+            Thank you for your business. If you have any questions about this invoice, please contact us at info@Chukticketingsystem.com or call 020 1234 5678.
           </p>
           <p className="mt-1 text-2xs text-gray-400 text-center">
             This is a computer-generated invoice. No signature is required.

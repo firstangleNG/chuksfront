@@ -6,7 +6,7 @@ import "./globals.css"
 import { AuthProvider } from "@/contexts/auth-context"
 
 export const metadata: Metadata = {
-  title: "ComputerHubUK - Repair Shop Management",
+  title: "Chukticketingsystem - Repair Shop Management",
   description: "All-in-one repair shop management platform",
   generator: "v0.app",
 }

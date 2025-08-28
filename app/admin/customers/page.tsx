@@ -214,7 +214,7 @@ function CustomersContent() {
 
             <Card className="print:shadow-none">
               <CardHeader className="text-center border-b">
-                <CardTitle className="text-2xl">ComputerHubUK</CardTitle>
+                <CardTitle className="text-2xl">Chukticketingsystem</CardTitle>
                 <CardDescription>Repair Service Ticket</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-6">

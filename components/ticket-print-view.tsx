@@ -37,7 +37,7 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
       <div className="mb-8">
         <div className="flex justify-between items-start">
           <div>
-              <h1 className="text-2xl font-bold text-gray-800">ComputerHubUK Solutions</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Chukticketingsystem Solutions</h1>
             <p className="text-sm text-gray-600">Professional Repair Services</p>
             <p className="text-sm text-gray-500">123 Tech Lane, Innovation City, UK</p>
             <p className="text-sm text-gray-500">Phone: +44 123 456 7890 | Email: info@repairhubsolutions.com</p>
@@ -176,8 +176,8 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
 
       {/* Footer */}
       <div className="text-center mt-8 text-sm text-gray-500">
-    <p>Thank you for choosing ComputerHubUK for your repair needs!</p>
-    <p>Contact us: info@computerhubuk.com | +44 123 456 7890</p>
+    <p>Thank you for choosing Chukticketingsystem for your repair needs!</p>
+    <p>Contact us: info@Chukticketingsystem.com | +44 123 456 7890</p>
       </div>
     </div>
   )

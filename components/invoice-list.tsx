@@ -52,7 +52,7 @@ const InvoiceViewModal = ({ invoice, onClose }: InvoiceViewModalProps) => {
 
           <header className="flex justify-between items-start border-b pb-4 mb-6">
             <div>
-              <h2 className="text-lg font-bold">ComputerHubUK</h2>
+              <h2 className="text-lg font-bold">Chukticketingsystem</h2>
               <p className="text-xs text-muted-foreground">Professional Repair Services</p>
             </div>
             <div className="text-right">

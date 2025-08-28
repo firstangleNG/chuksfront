@@ -40,7 +40,7 @@ export default function LoginPage() {
               <Wrench className="h-6 w-6 text-primary-foreground" />
             </div>
           </div>
-              <CardTitle className="text-2xl font-bold">ComputerHubUK</CardTitle>
+              <CardTitle className="text-2xl font-bold">Chukticketingsystem</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>

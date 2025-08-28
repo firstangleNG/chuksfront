@@ -25,10 +25,10 @@ interface SystemSettings {
 
 function SettingsContent() {
   const [settings, setSettings] = useState<SystemSettings>({
-  shopName: "ComputerHubUK",
+  shopName: "Chukticketingsystem",
     shopAddress: "123 Main Street, City, State 12345",
     shopPhone: "+1 (555) 123-4567",
-  shopEmail: "info@computerhubuk.com",
+  shopEmail: "info@Chukticketingsystem.com",
     termsAndConditions: "By signing this repair ticket, you agree to our terms and conditions...",
     emailNotifications: true,
     smsNotifications: true,
