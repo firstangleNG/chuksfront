@@ -31,16 +31,27 @@ type InvoiceItem = {
   amount: number
 }
 
+type PaymentMethod = 'cash' | 'card' | 'bank_transfer' | 'other'
+
 export default function CreateInvoicePage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [tickets, setTickets] = useState<RepairTicket[]>([])
   const [selectedTicketId, setSelectedTicketId] = useState("")
+  const [invoiceNumber, setInvoiceNumber] = useState("")
+  const [invoiceDate, setInvoiceDate] = useState("")
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash')
+  const [customerName, setCustomerName] = useState("")
+  const [customerEmail, setCustomerEmail] = useState("")
+  const [customerPhone, setCustomerPhone] = useState("")
+  const [deviceInfo, setDeviceInfo] = useState("")
   const [items, setItems] = useState<InvoiceItem[]>([
     { description: "Labor Charges", quantity: 1, unitPrice: 0, amount: 0 },
     { description: "Parts", quantity: 1, unitPrice: 0, amount: 0 },
   ])
+  const [taxRate, setTaxRate] = useState(20) // Default 20% tax
+  const [discount, setDiscount] = useState(0)
   const [dueDate, setDueDate] = useState("")
   const [notes, setNotes] = useState("")
   const [showActions, setShowActions] = useState(false)
@@ -67,10 +78,20 @@ export default function CreateInvoicePage() {
 
     fetchTickets()
     
-    // Set default due date to 7 days from now
+    // Set default dates and generate invoice number
+    const today = new Date()
     const nextWeek = new Date()
-    nextWeek.setDate(nextWeek.getDate() + 7)
-    setDueDate(nextWeek.toISOString().split("T")[0])
+    nextWeek.setDate(today.getDate() + 7)
+    
+    // Format dates as YYYY-MM-DD
+    const formatDate = (date: Date) => date.toISOString().split('T')[0]
+    
+    setInvoiceDate(formatDate(today))
+    setDueDate(formatDate(nextWeek))
+    
+    // Generate a simple invoice number (e.g., INV-2023-001)
+    const invoiceCount = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+    setInvoiceNumber(`INV-${today.getFullYear()}-${invoiceCount}`)
   }, [toast])
 
   const selectedTicket = tickets.find((t) => t.id === selectedTicketId)
@@ -109,55 +130,49 @@ export default function CreateInvoicePage() {
     return calculateSubtotal() * 0.08 // 8% tax
   }
 
-  const calculateTotal = () => {
-    return calculateSubtotal() + calculateTax()
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!selectedTicket) {
-      toast({
-        title: "Error",
-        description: "Please select a repair ticket",
-        variant: "destructive",
-      })
-      return
-    }
-
     setIsLoading(true)
 
     try {
+      const { subtotal, taxAmount, total } = calculateTotals()
+
       const invoiceData = {
-        repairTicketId: selectedTicket.id,
-        trackingId: selectedTicket.trackingId,
-        customerName: selectedTicket.customerName,
-        customerEmail: selectedTicket.customerEmail || "",
-        deviceInfo: selectedTicket.deviceInfo,
-        issueDescription: selectedTicket.issueDescription,
-        items: items.map(item => ({
-          description: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          amount: item.amount
-        })),
-        subtotal: calculateSubtotal(),
-        taxAmount: calculateTax(),
-        totalAmount: calculateTotal(),
+        invoiceNumber,
+        invoiceDate: new Date(invoiceDate).toISOString(),
         dueDate: new Date(dueDate).toISOString(),
+        customerName: selectedTicket?.customerName || customerName,
+        customerEmail: selectedTicket?.customerEmail || customerEmail,
+        customerPhone: selectedTicket?.customerPhone || customerPhone,
+        deviceInfo: selectedTicket?.deviceInfo || deviceInfo,
+        trackingId: selectedTicket?.trackingId || '',
+        items,
+        subtotal,
+        tax: taxAmount,
+        discount,
+        total,
+        paymentMethod,
+        paymentStatus: paymentMethod === 'cash' ? 'paid' : 'pending',
+        createdAt: new Date().toISOString(),
         notes,
-        paymentStatus: "pending" as const,
+        repairTicketId: selectedTicketId || undefined,
       }
 
-      // Save the invoice
-      const newInvoice = await InvoiceService.createInvoice(invoiceData)
-      setCreatedInvoiceId(newInvoice.id)
-      setShowActions(true)
+      const createdInvoice = await InvoiceService.createInvoice(invoiceData)
       
       toast({
         title: "Success",
         description: "Invoice created successfully!",
       })
+      
+      // Store the created invoice ID for the print view
+      setCreatedInvoiceId(createdInvoice.id)
+      
+      // Show print dialog after a short delay
+      setTimeout(() => {
+        window.print()
+      }, 500)
+      
     } catch (error) {
       console.error("Error creating invoice:", error)
       toast({
@@ -170,211 +185,90 @@ export default function CreateInvoicePage() {
     }
   }
 
-  const handlePrint = () => {
-    if (createdInvoiceId) {
-      window.open(`/invoices/print/${createdInvoiceId}`, "_blank")
-    }
-  }
-
-  const handleEmail = async () => {
-    if (!createdInvoiceId || !selectedTicket?.customerEmail) return
-    
-    try {
-      setIsLoading(true)
-      // TODO: Implement email sending logic
-      // await InvoiceService.sendInvoiceEmail(createdInvoiceId, selectedTicket.customerEmail)
-      
-      toast({
-        title: "Email Sent",
-        description: `Invoice has been sent to ${selectedTicket.customerEmail}`,
-      })
-    } catch (error) {
-      console.error("Error sending email:", error)
-      toast({
-        title: "Error",
-        description: "Failed to send email. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Create New Invoice</h1>
-        <Button variant="outline" onClick={() => router.back()}>
-          Back to Invoices
-        </Button>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Invoice Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="container mx-auto p-6 max-w-6xl">
+      <h1 className="text-2xl font-bold mb-6">Create New Invoice</h1>
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Invoice Header */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Invoice Details</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="ticket">Repair Ticket *</Label>
-                <Select
-                  value={selectedTicketId}
-                  onValueChange={(value) => setSelectedTicketId(value)}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a repair ticket" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tickets.length === 0 ? (
-                      <div className="p-2 text-sm text-gray-500">No completed tickets found</div>
-                    ) : (
-                      tickets.map((ticket) => (
-                        <SelectItem key={ticket.id} value={ticket.id}>
-                          #{ticket.trackingId} - {ticket.customerName} - {ticket.deviceInfo}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Only completed repair tickets without invoices are shown
-                </p>
+                <Label htmlFor="invoiceNumber">Invoice Number</Label>
+                <Input
+                  id="invoiceNumber"
+                  value={invoiceNumber}
+                  onChange={(e) => setInvoiceNumber(e.target.value)}
+                  required
+                />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="dueDate">Due Date *</Label>
+                <Label htmlFor="invoiceDate">Invoice Date</Label>
+                <Input
+                  id="invoiceDate"
+                  type="date"
+                  value={invoiceDate}
+                  onChange={(e) => setInvoiceDate(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dueDate">Due Date</Label>
                 <Input
                   id="dueDate"
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
                   required
-                  disabled={isLoading}
                 />
               </div>
             </div>
 
-            {selectedTicket && (
-              <div className="space-y-2">
-                <h3 className="font-medium">Customer Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-md">
-                  <div>
-                    <p className="text-sm font-medium">Customer</p>
-                    <p>{selectedTicket.customerName}</p>
-                  </div>
-                  {selectedTicket.customerEmail && (
-                    <div>
-                      <p className="text-sm font-medium">Email</p>
-                      <p>{selectedTicket.customerEmail}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-medium">Device</p>
-                    <p>{selectedTicket.deviceInfo}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="font-medium">Invoice Items</h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addNewItem}
-                  disabled={isLoading}
+              <div className="space-y-2">
+                <Label htmlFor="paymentMethod">Payment Method</Label>
+                <Select
+                  value={paymentMethod}
+                  onValueChange={(value: PaymentMethod) => setPaymentMethod(value)}
                 >
-                  <Plus className="h-4 w-4 mr-2" /> Add Item
-                </Button>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select payment method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="card">Credit/Debit Card</SelectItem>
+                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-
-              <div className="border rounded-md overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr className="text-left text-sm">
-                      <th className="p-3 w-1/2">Description</th>
-                      <th className="p-3 text-right">Qty</th>
-                      <th className="p-3 text-right">Unit Price</th>
-                      <th className="p-3 text-right">Amount</th>
-                      <th className="p-3 w-10"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {items.map((item, index) => (
-                      <tr key={index}>
-                        <td className="p-2">
-                          <Input
-                            type="text"
-                            value={item.description}
-                            onChange={(e) =>
-                              handleItemChange(index, "description", e.target.value)
-                            }
-                            className="border-0 focus-visible:ring-1"
-                            required
-                            disabled={isLoading}
-                          />
-                        </td>
-                        <td className="p-2">
-                          <Input
-                            type="number"
-                            min="1"
-                            step="1"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              handleItemChange(index, "quantity", e.target.value)
-                            }
-                            className="text-right border-0 focus-visible:ring-1"
-                            required
-                            disabled={isLoading}
-                          />
-                        </td>
-                        <td className="p-2">
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                              $
-                            </span>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={item.unitPrice || ""}
-                              onChange={(e) =>
-                                handleItemChange(index, "unitPrice", e.target.value)
-                              }
-                              className="pl-8 text-right border-0 focus-visible:ring-1"
-                              required
-                              disabled={isLoading}
-                            />
-                          </div>
-                        </td>
-                        <td className="p-2 text-right">
-                          ${(item.amount || 0).toFixed(2)}
-                        </td>
-                        <td className="p-2 text-right">
-                          {items.length > 2 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeItem(index)}
-                              disabled={isLoading}
-                            >
-                              <X className="h-4 w-4 text-red-500" />
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-2">
+                <Label htmlFor="taxRate">Tax Rate (%)</Label>
+                <Input
+                  id="taxRate"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={taxRate}
+                  onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
+                />
               </div>
-
-              <div className="ml-auto max-w-xs space-y-2">
-                <div className="flex justify-between">
+              <div className="space-y-2">
+                <Label htmlFor="discount">Discount (£)</Label>
+                <Input
+                  id="discount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={discount}
+                  onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                />
+              </div>
                   <span className="text-sm text-muted-foreground">Subtotal</span>
                   <span>${calculateSubtotal().toFixed(2)}</span>
                 </div>
