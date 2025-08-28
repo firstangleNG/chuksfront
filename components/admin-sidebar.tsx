@@ -72,7 +72,7 @@ export function AdminSidebar() {
               <Image src="/computerhub.png" alt="Chukticketingsystem" width={32} height={32} className="rounded" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm font-semibold truncate">Chukticketingsystem</h1>
+              <h1 className="text-lg font-semibold truncate">CHUKTS</h1>
               <p className="text-xs text-muted-foreground">Admin Panel</p>
             </div>
           </div>

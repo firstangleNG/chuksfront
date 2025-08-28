@@ -270,15 +270,15 @@ export default function CreateInvoicePage() {
                 />
               </div>
                   <span className="text-sm text-muted-foreground">Subtotal</span>
-                  <span>${calculateSubtotal().toFixed(2)}</span>
+                  <span>£{calculateSubtotal().toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Tax (8%)</span>
-                  <span>${calculateTax().toFixed(2)}</span>
+                  <span>£{calculateTax().toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t font-medium">
                   <span>Total</span>
-                  <span>${calculateTotal().toFixed(2)}</span>
+                  <span>£{calculateTotal().toFixed(2)}</span>
                 </div>
               </div>
             </div>
