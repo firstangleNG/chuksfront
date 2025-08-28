@@ -40,7 +40,7 @@ export default function LoginPage() {
               <Wrench className="h-6 w-6 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">RepairHub</CardTitle>
+              <CardTitle className="text-2xl font-bold">ComputerHubUK</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
@@ -79,8 +79,8 @@ export default function LoginPage() {
           <div className="mt-6 text-sm text-muted-foreground">
             <p className="font-medium mb-2">Demo Accounts:</p>
             <div className="space-y-1">
-              <p>Super Admin: superadmin@repairhub.com / admin123</p>
-              <p>Admin: admin@repairhub.com / admin123</p>
+              <p>Super Admin: superadmin@computerhub.com / admin123</p>
+              <p>Admin: admin@computerhub.com / admin123</p>
               <p>Customer: customer@example.com / customer123</p>
             </div>
           </div>

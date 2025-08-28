@@ -29,9 +29,11 @@ function TicketsPageContent() {
   }
 
   const handleTicketUpdated = (ticket: RepairTicket) => {
-    setCreatedTicket(ticket)
-    setView("success")
-    setRefreshKey((prev) => prev + 1)
+  // After updating, return to list and refresh
+  setEditingTicket(null)
+  setCreatedTicket(ticket)
+  setView("list")
+  setRefreshKey((prev) => prev + 1)
   }
 
   const handleBackToList = () => {

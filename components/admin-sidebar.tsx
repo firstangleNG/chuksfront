@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import {
-  Wrench,
   LayoutDashboard,
   FileText,
   Users,
@@ -19,14 +18,15 @@ import {
   Receipt,
   Bell,
 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Repair Tickets", href: "/admin/tickets", icon: FileText },
   { name: "Invoices", href: "/admin/invoices", icon: Receipt },
-  { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Inventory", href: "/admin/inventory", icon: Package },
   { name: "Notifications", href: "/admin/notifications", icon: Bell },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
@@ -68,11 +68,11 @@ export function AdminSidebar() {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center gap-3 p-6 border-b">
-            <div className="p-2 bg-primary rounded-lg">
-              <Wrench className="h-5 w-5 text-primary-foreground" />
+            <div className="p-1 bg-transparent rounded-lg">
+              <Image src="/computerhub.png" alt="ComputerHubUK" width={36} height={36} />
             </div>
             <div>
-              <h1 className="text-lg font-bold">RepairHub</h1>
+              <h1 className="text-lg font-bold">ComputerHubUK</h1>
               <p className="text-xs text-muted-foreground">Admin Panel</p>
             </div>
           </div>
@@ -103,8 +103,8 @@ export function AdminSidebar() {
           {/* User info */}
           <div className="p-4 border-t">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex-1">
-                <p className="text-sm font-medium">{user?.name}</p>
+                <div className="flex-1">
+                <p className="text-sm font-medium">{`${user?.firstname || ''} ${user?.surname || ''}`.trim()}</p>
                 <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
               <Badge className={getRoleColor(user?.role || "")} variant="secondary">

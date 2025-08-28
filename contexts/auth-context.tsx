@@ -9,8 +9,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const mockUsers: (User & { password: string })[] = [
   {
     id: "1",
-    name: "Super Admin",
-    email: "superadmin@repairhub.com",
+    firstname: "Super",
+    surname: "Admin",
+    email: "superadmin@computerhub.com",
     phone: "+1234567890",
     role: "superadmin",
     password: "admin123",
@@ -18,8 +19,9 @@ const mockUsers: (User & { password: string })[] = [
   },
   {
     id: "2",
-    name: "Shop Admin",
-    email: "admin@repairhub.com",
+    firstname: "Shop",
+    surname: "Admin",
+    email: "admin@computerhub.com",
     phone: "+1234567891",
     role: "admin",
     password: "admin123",
@@ -27,7 +29,8 @@ const mockUsers: (User & { password: string })[] = [
   },
   {
     id: "3",
-    name: "John Customer",
+    firstname: "John",
+    surname: "Customer",
     email: "customer@example.com",
     phone: "+1234567892",
     role: "customer",
@@ -41,10 +44,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem("repairhub_user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    // migrate stored user key if present
+    try {
+      const newKey = "computerhub_user"
+      const oldKey = "repairhub_user"
+      const newVal = localStorage.getItem(newKey)
+      if (newVal) {
+        setUser(JSON.parse(newVal))
+      } else {
+        const oldVal = localStorage.getItem(oldKey)
+        if (oldVal) {
+          localStorage.setItem(newKey, oldVal)
+          localStorage.setItem(`${oldKey}_backup`, oldVal)
+          setUser(JSON.parse(oldVal))
+        }
+      }
+    } catch (e) {
+      console.error(e)
     }
     setIsLoading(false)
   }, [])
@@ -59,8 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (foundUser) {
       const { password: _, ...userWithoutPassword } = foundUser
-      setUser(userWithoutPassword)
-      localStorage.setItem("repairhub_user", JSON.stringify(userWithoutPassword))
+  setUser(userWithoutPassword)
+  localStorage.setItem("computerhub_user", JSON.stringify(userWithoutPassword))
       setIsLoading(false)
       return true
     }

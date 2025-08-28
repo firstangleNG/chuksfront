@@ -1,7 +1,17 @@
 import type { Customer } from "@/types"
 
+import { migrateLocalStorageKey } from "./storage-migration"
+
 export class CustomerService {
-  private static STORAGE_KEY = "repairhub_customers"
+  private static STORAGE_KEY = "computerhub_customers"
+
+  // migrate legacy key on load
+  static _migrateOnce = (() => {
+    if (typeof window !== "undefined") {
+      migrateLocalStorageKey("repairhub_customers", CustomerService.STORAGE_KEY)
+    }
+    return true
+  })()
 
   static getCustomers(): Customer[] {
     if (typeof window === "undefined") return []

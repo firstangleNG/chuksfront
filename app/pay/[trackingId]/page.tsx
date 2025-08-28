@@ -52,7 +52,7 @@ export default function PayInvoicePage() {
                 <div className="p-2 bg-primary rounded-lg">
                   <Wrench className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <h1 className="text-xl font-bold">RepairHub</h1>
+                <h1 className="text-xl font-bold">ComputerHubUK</h1>
               </div>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function PayInvoicePage() {
               <div className="p-2 bg-primary rounded-lg">
                 <Wrench className="h-5 w-5 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-bold">RepairHub</h1>
+              <h1 className="text-xl font-bold">ComputerHubUK</h1>
             </div>
           </div>
         </div>

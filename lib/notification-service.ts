@@ -1,9 +1,17 @@
 import type { Notification, NotificationTemplate, NotificationPreferences, RepairTicket } from "@/types"
 
+import { migrateLocalStorageKey } from "./storage-migration"
+
 // Mock notification storage
-const NOTIFICATIONS_KEY = "repairhub_notifications"
-const TEMPLATES_KEY = "repairhub_notification_templates"
-const PREFERENCES_KEY = "repairhub_notification_preferences"
+const NOTIFICATIONS_KEY = "computerhub_notifications"
+const TEMPLATES_KEY = "computerhub_notification_templates"
+const PREFERENCES_KEY = "computerhub_notification_preferences"
+
+if (typeof window !== "undefined") {
+  migrateLocalStorageKey("repairhub_notifications", NOTIFICATIONS_KEY)
+  migrateLocalStorageKey("repairhub_notification_templates", TEMPLATES_KEY)
+  migrateLocalStorageKey("repairhub_notification_preferences", PREFERENCES_KEY)
+}
 
 // Default notification templates
 const DEFAULT_TEMPLATES: NotificationTemplate[] = [

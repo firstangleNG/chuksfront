@@ -80,6 +80,8 @@ export interface Invoice {
   partsCost: number
   taxAmount: number
   totalAmount: number
+  totalPaid?: number
+  payments?: Payment[]
   paymentStatus: "pending" | "paid" | "overdue" | "cancelled"
   paymentMethod?: "cash" | "card" | "online" | "bank_transfer"
   paidAt?: string

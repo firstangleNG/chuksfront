@@ -175,7 +175,7 @@ export function RepairTicketList({ onEditTicket, onDeleteTicket, refreshKey }: R
           <div class="container">
             <div class="top">
               <div class="brand">
-                RepairHub<br/>
+                ComputerHubUK<br/>
                 <span style="font-weight:400;font-size:12px;color:#6b7280">Professional Repair Services</span>
               </div>
               <div class="meta">
@@ -235,7 +235,7 @@ export function RepairTicketList({ onEditTicket, onDeleteTicket, refreshKey }: R
             <footer>
               <h4 style="margin:0 0 6px 0">Terms & Conditions</h4>
               <ul>${terms}</ul>
-              <p style="margin-top:12px">Thank you for choosing RepairHub.</p>
+              <p style="margin-top:12px">Thank you for choosing ComputerHubUK.</p>
             </footer>
           </div>
         </body>

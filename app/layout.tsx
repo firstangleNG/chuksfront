@@ -6,7 +6,7 @@ import "./globals.css"
 import { AuthProvider } from "@/contexts/auth-context"
 
 export const metadata: Metadata = {
-  title: "RepairHub - Repair Shop Management",
+  title: "ComputerHubUK - Repair Shop Management",
   description: "All-in-one repair shop management platform",
   generator: "v0.app",
 }
@@ -26,6 +26,8 @@ html {
   --font-mono: ${GeistMono.variable};
 }
         `}</style>
+        {/* Favicon */}
+        <link rel="icon" href="/computerhub.png" />
       </head>
       <body>
         <AuthProvider>{children}</AuthProvider>

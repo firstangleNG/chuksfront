@@ -10,9 +10,17 @@ function generateTrackingId(counter: number): string {
   return `${prefix} ${middle} ${suffix}`;
 }
 
+import { migrateLocalStorageKey } from "./storage-migration"
+
 // Mock repair tickets storage
-const STORAGE_KEY = "repairhub_tickets"
-const COUNTER_KEY = "repairhub_ticket_counter"
+const STORAGE_KEY = "computerhub_tickets"
+const COUNTER_KEY = "computerhub_ticket_counter"
+
+// Migrate legacy keys if present
+if (typeof window !== "undefined") {
+  migrateLocalStorageKey("repairhub_tickets", STORAGE_KEY)
+  migrateLocalStorageKey("repairhub_ticket_counter", COUNTER_KEY)
+}
 
 export class RepairService {
   static getTickets(): RepairTicket[] {

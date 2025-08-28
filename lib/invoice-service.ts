@@ -1,7 +1,14 @@
 import type { Invoice, Payment, RepairTicket } from "@/types"
 
-const INVOICES_STORAGE_KEY = "repairhub_invoices"
-const PAYMENTS_STORAGE_KEY = "repairhub_payments"
+import { migrateLocalStorageKey } from "./storage-migration"
+
+const INVOICES_STORAGE_KEY = "computerhub_invoices"
+const PAYMENTS_STORAGE_KEY = "computerhub_payments"
+
+if (typeof window !== "undefined") {
+  migrateLocalStorageKey("repairhub_invoices", INVOICES_STORAGE_KEY)
+  migrateLocalStorageKey("repairhub_payments", PAYMENTS_STORAGE_KEY)
+}
 
 export class InvoiceService {
   static getInvoices(): Invoice[] {
@@ -77,7 +84,21 @@ export class InvoiceService {
 
   static getInvoiceById(id: string): Invoice | null {
     const invoices = this.getInvoices()
-    return invoices.find((inv) => inv.id === id) || null
+    const invoice = invoices.find((inv) => inv.id === id)
+    if (!invoice) return null
+    
+    // Add related payments
+    const payments = this.getPaymentsByInvoiceId(id)
+    return {
+      ...invoice,
+      payments,
+      totalPaid: payments.reduce((sum, payment) => sum + payment.amount, 0)
+    }
+  }
+
+  static getPaymentsByInvoiceId(invoiceId: string) {
+    const payments = this.getPayments()
+    return payments.filter(payment => payment.invoiceId === invoiceId)
   }
 
   static getInvoiceByTrackingId(trackingId: string): Invoice | null {

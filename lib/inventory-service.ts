@@ -1,6 +1,12 @@
 import type { InventoryItem } from "@/types"
 
-const STORAGE_KEY = "repairhub_inventory"
+import { migrateLocalStorageKey } from "./storage-migration"
+
+const STORAGE_KEY = "computerhub_inventory"
+
+if (typeof window !== "undefined") {
+  migrateLocalStorageKey("repairhub_inventory", STORAGE_KEY)
+}
 
 export class InventoryService {
   static getItems(): InventoryItem[] {

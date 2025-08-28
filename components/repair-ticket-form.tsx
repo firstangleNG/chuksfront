@@ -187,9 +187,20 @@ export function RepairTicketForm({ editTicket, onSuccess, onCancel }: RepairTick
           date: p.date,
         })),
       }
+      // Map human-readable status to normalized status keys expected by services
+      const statusMap: Record<string, RepairTicket["status"]> = {
+        "Diagnosing": "diagnosing",
+        "Waiting for Customer Response": "waiting_customer",
+        "Waiting for Payment": "waiting_customer",
+        "Waiting for Parts": "waiting_parts",
+        "In Progress": "in_progress",
+        "Completed": "completed",
+        "Cancelled": "cancelled",
+      }
+      const normalizedStatus = statusMap[formData.status] || (formData.status as RepairTicket["status"])
 
       if (editTicket) {
-        const updatedTicket = RepairService.updateTicket(editTicket.id, ticketData)
+        const updatedTicket = RepairService.updateTicket(editTicket.id, { ...ticketData, status: normalizedStatus })
         if (!updatedTicket) {
           throw new Error("Failed to update ticket")
         }
@@ -199,7 +210,7 @@ export function RepairTicketForm({ editTicket, onSuccess, onCancel }: RepairTick
           customerId: "walk-in",
           ...ticketData,
           assignedTechnician: "FirstAngle",
-          status: formData.status,
+          status: normalizedStatus,
         })
       }
 
