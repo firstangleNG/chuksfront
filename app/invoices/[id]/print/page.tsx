@@ -2,12 +2,17 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import Head from "next/head"
 import { InvoiceService, type Invoice } from "@/lib/invoice-service"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Printer, ArrowLeft } from "lucide-react"
 import "./print.css"
+
+export const metadata = {
+  title: 'Invoice - ComputerHub',
+  description: 'View and print your invoice',
+  viewport: 'width=device-width, initial-scale=1',
+}
 
 export default function InvoicePrintPage() {
   const { id } = useParams()
@@ -73,13 +78,15 @@ export default function InvoicePrintPage() {
     )
   }
 
+  // Update the title dynamically
+  useEffect(() => {
+    if (invoice) {
+      document.title = `Invoice #${invoice.invoiceNumber} - ComputerHub`
+    }
+  }, [invoice])
+
   return (
     <div>
-      <Head>
-        <title>Invoice #{invoice?.invoiceNumber || 'Loading...'} - ComputerHub</title>
-        <meta name="description" content={`Invoice #${invoice?.invoiceNumber || ''} for ${invoice?.customerName || 'customer'}`} />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
       
       <div className="no-print fixed top-4 left-4 z-50">
         <Button variant="outline" size="sm" onClick={() => router.back()}>
@@ -89,7 +96,7 @@ export default function InvoicePrintPage() {
       </div>
 
       <div className="p-8 max-w-4xl mx-auto print-container">
-      <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-start mb-8">
         <div>
           <h1 className="text-3xl font-bold">INVOICE</h1>
           <p className="text-muted-foreground">#{invoice.invoiceNumber}</p>
@@ -210,16 +217,17 @@ export default function InvoicePrintPage() {
         </div>
       )}
 
-      <div className="mt-12 pt-4 border-t border-muted text-center text-sm text-muted-foreground">
-        <p>Thank you for your business!</p>
-        <p className="mt-1">ComputerHub | 123 Tech Street, London, UK | info@computerhub.com</p>
-      </div>
+        <div className="mt-12 pt-4 border-t border-muted text-center text-sm text-muted-foreground">
+          <p>Thank you for your business!</p>
+          <p className="mt-1">ComputerHub | 123 Tech Street, London, UK | info@computerhub.com</p>
+        </div>
 
-      <div className="mt-8 flex justify-center no-print">
-        <Button onClick={() => window.print()}>
-          <Printer className="mr-2 h-4 w-4" />
-          Print Invoice
-        </Button>
+        <div className="mt-8 flex justify-center no-print">
+          <Button onClick={() => window.print()}>
+            <Printer className="mr-2 h-4 w-4" />
+            Print Invoice
+          </Button>
+        </div>
       </div>
     </div>
   )
