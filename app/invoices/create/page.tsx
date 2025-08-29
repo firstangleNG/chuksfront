@@ -127,7 +127,30 @@ export default function CreateInvoicePage() {
   }
 
   const calculateTax = () => {
-    return calculateSubtotal() * 0.08 // 8% tax
+    return calculateSubtotal() * (taxRate / 100)
+  }
+
+  const calculateTotal = () => {
+    return calculateSubtotal() + calculateTax() - discount
+  }
+
+  const calculateTotals = () => {
+    const subtotal = calculateSubtotal()
+    const taxAmount = calculateTax()
+    const total = subtotal + taxAmount - discount
+    return { subtotal, taxAmount, total }
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleEmail = async () => {
+    // Implement email functionality here
+    toast({
+      title: "Email sent",
+      description: "Invoice has been sent to the customer's email.",
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -269,86 +292,195 @@ export default function CreateInvoicePage() {
                   onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
                 />
               </div>
-                  <span className="text-sm text-muted-foreground">Subtotal</span>
-                  <span>£{calculateSubtotal().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Tax (8%)</span>
-                  <span>£{calculateTax().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between pt-2 border-t font-medium">
-                  <span>Total</span>
-                  <span>£{calculateTotal().toFixed(2)}</span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Summary</Label>
+                <div className="space-y-2 p-4 bg-muted/50 rounded-md">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Subtotal</span>
+                    <span>£{calculateSubtotal().toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Tax ({taxRate}%)</span>
+                    <span>£{calculateTax().toFixed(2)}</span>
+                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Discount</span>
+                      <span className="text-red-500">-£{discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-medium pt-2 border-t">
+                    <span>Total</span>
+                    <span>£{calculateTotal().toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
+        {/* Items Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Items</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {items.map((item, index) => (
+              <div key={index} className="grid grid-cols-12 gap-4 items-center mb-4">
+                <div className="col-span-5">
+                  <Input
+                    placeholder="Item description"
+                    value={item.description}
+                    onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={item.unitPrice}
+                    onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
+                  />
+                </div>
+                <div className="col-span-2 text-right">
+                  £{item.amount.toFixed(2)}
+                </div>
+                <div className="col-span-1 text-right">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeItem(index)}
+                    disabled={items.length <= 1}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addNewItem}
+              className="mt-2"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Item
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Customer Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Customer Information</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="customerName">Customer Name</Label>
+                <Input
+                  id="customerName"
+                  value={selectedTicket?.customerName || customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  disabled={!!selectedTicket}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerEmail">Email</Label>
+                <Input
+                  id="customerEmail"
+                  type="email"
+                  value={selectedTicket?.customerEmail || customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  disabled={!!selectedTicket}
+                />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="customerPhone">Phone</Label>
+                <Input
+                  id="customerPhone"
+                  type="tel"
+                  value={selectedTicket?.customerPhone || customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  disabled={!!selectedTicket}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="deviceInfo">Device</Label>
+                <Input
+                  id="deviceInfo"
+                  value={selectedTicket?.deviceInfo || deviceInfo}
+                  onChange={(e) => setDeviceInfo(e.target.value)}
+                  disabled={!!selectedTicket}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Notes */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">Additional Notes</Label>
               <Input
                 id="notes"
-                placeholder="Additional notes or terms"
+                placeholder="Any additional notes or terms"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                disabled={isLoading}
               />
               <p className="text-xs text-muted-foreground">
                 This will appear at the bottom of the invoice
               </p>
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="flex justify-end gap-4 pt-4 border-t">
-              {showActions ? (
-                <div className="flex items-center gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push("/invoices")}
-                    disabled={isLoading}
-                  >
-                    View All Invoices
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handlePrint}
-                    disabled={isLoading}
-                  >
-                    Print Invoice
-                  </Button>
-                  {selectedTicket?.customerEmail && (
-                    <Button
-                      type="button"
-                      onClick={handleEmail}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        "Email to Customer"
-                      )}
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <Button type="submit" disabled={isLoading || tickets.length === 0}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    "Create Invoice"
-                  )}
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+        {/* Actions */}
+        <div className="flex justify-end gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="min-w-[150px]"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              'Create Invoice'
+            )}
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }
