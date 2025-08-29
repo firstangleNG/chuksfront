@@ -191,10 +191,17 @@ export default function CreateInvoicePage() {
       // Store the created invoice ID for the print view
       setCreatedInvoiceId(createdInvoice.id)
       
-      // Show print dialog after a short delay
+      // Show success message
+      toast({
+        title: "Success",
+        description: "Invoice created successfully! Redirecting to invoices...",
+        duration: 2000,
+      })
+      
+      // Redirect to invoice list after a short delay
       setTimeout(() => {
-        window.print()
-      }, 500)
+        router.push('/invoices')
+      }, 1500)
       
     } catch (error) {
       console.error("Error creating invoice:", error)

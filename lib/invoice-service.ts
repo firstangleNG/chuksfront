@@ -2,6 +2,13 @@ import type { Payment, RepairTicket } from "@/types"
 import { RepairService } from "./repair-service"
 import { migrateLocalStorageKey } from "./storage-migration"
 
+export interface InvoiceItem {
+  description: string
+  quantity: number
+  unitPrice: number
+  amount: number
+}
+
 export interface Invoice {
   id: string
   invoiceNumber: string
@@ -12,18 +19,14 @@ export interface Invoice {
   customerPhone?: string
   deviceInfo: string
   trackingId: string
-  items: Array<{
-    description: string
-    quantity: number
-    unitPrice: number
-    amount: number
-  }>
+  items: InvoiceItem[]
   subtotal: number
   tax: number
+  taxRate?: number
   discount: number
   total: number
   paymentMethod: string
-  paymentStatus: 'pending' | 'paid' | 'overdue'
+  paymentStatus: 'pending' | 'paid' | 'overdue' | 'partially_paid'
   notes?: string
   repairTicketId?: string
   issueDescription?: string
@@ -32,9 +35,10 @@ export interface Invoice {
   taxAmount?: number
   totalAmount?: number
   status: string
+  paidAt?: string
   createdAt: string
   updatedAt: string
-  payments: any[]
+  payments: Payment[]
 }
 
 const INVOICES_STORAGE_KEY = "computerhub_invoices"
@@ -73,6 +77,10 @@ export interface InvoiceInput {
 export class InvoiceService {
   static createInvoice(invoiceData: InvoiceInput) {
     const invoices = this.getInvoices()
+    const issueDescription = invoiceData.items.map(item => item.description).join(', ')
+    const laborCost = invoiceData.items.find(item => item.description.toLowerCase().includes('labor'))?.amount || 0
+    const partsCost = invoiceData.items.find(item => !item.description.toLowerCase().includes('labor'))?.amount || 0
+    
     const newInvoice: Invoice = {
       ...invoiceData,
       id: `INV-${Date.now()}`,
@@ -80,25 +88,34 @@ export class InvoiceService {
       updatedAt: new Date().toISOString(),
       status: 'active',
       payments: [],
-      issueDescription: invoiceData.items.map(item => item.description).join(', '),
-      laborCost: invoiceData.items.find(item => item.description.toLowerCase().includes('labor'))?.amount || 0,
-      partsCost: invoiceData.items.find(item => !item.description.toLowerCase().includes('labor'))?.amount || 0,
+      issueDescription,
+      laborCost,
+      partsCost,
       taxAmount: invoiceData.tax,
-      totalAmount: invoiceData.total
+      totalAmount: invoiceData.total,
+      trackingId: invoiceData.trackingId || '',
+      taxRate: 20, // Default tax rate if not provided
+      paymentStatus: invoiceData.paymentStatus || 'pending',
+      paymentMethod: invoiceData.paymentMethod || 'cash',
+      deviceInfo: invoiceData.deviceInfo || '',
+      customerPhone: invoiceData.customerPhone || ''
     }
     
     invoices.push(newInvoice)
     this.saveInvoices(invoices)
     
-    // If there's a repair ticket ID, update the ticket's invoice status
+    // If there's a repair ticket ID, update the ticket's status
     if (invoiceData.repairTicketId) {
       try {
-        // Assuming you have a RepairService with updateTicket method
         const ticket = RepairService.getTicketById(invoiceData.repairTicketId)
         if (ticket) {
-          ticket.invoiceId = newInvoice.id
-          ticket.updatedAt = new Date().toISOString()
-          RepairService.updateTicket(ticket.id, ticket)
+          // Update ticket status to 'invoiced' or similar if needed
+          const updatedTicket = {
+            ...ticket,
+            status: 'invoiced',
+            updatedAt: new Date().toISOString()
+          }
+          RepairService.updateTicket(ticket.id, updatedTicket)
         }
       } catch (error) {
         console.error('Error updating repair ticket:', error)
@@ -114,9 +131,37 @@ export class InvoiceService {
     return stored ? JSON.parse(stored) : []
   }
 
+  static getInvoiceById(id: string): Invoice | null {
+    const invoices = this.getInvoices()
+    const invoice = invoices.find((invoice) => invoice.id === id)
+    if (!invoice) return null
+    
+    // Add related payments
+    const payments = this.getPaymentsByInvoiceId(id)
+    return {
+      ...invoice,
+      payments
+    }
+  }
+
+  static getInvoicesByTicketId(ticketId: string): Invoice[] {
+    const invoices = this.getInvoices()
+    return invoices.filter((invoice) => invoice.repairTicketId === ticketId)
+  }
+
   static saveInvoices(invoices: Invoice[]): void {
     if (typeof window === "undefined") return
-    localStorage.setItem(INVOICES_STORAGE_KEY, JSON.stringify(invoices))
+    // Ensure we don't store any functions or undefined values
+    const sanitizedInvoices = invoices.map(invoice => ({
+      ...invoice,
+      items: invoice.items.map(item => ({
+        description: item.description || '',
+        quantity: item.quantity || 0,
+        unitPrice: item.unitPrice || 0,
+        amount: item.amount || 0
+      }))
+    }))
+    localStorage.setItem(INVOICES_STORAGE_KEY, JSON.stringify(sanitizedInvoices))
   }
 
   static getPayments(): Payment[] {
@@ -138,15 +183,15 @@ export class InvoiceService {
     }
 
     // Check if ticket is fully paid
-    const balanceDue = (ticket.balanceDue || 0) <= 0
-    if (!balanceDue) {
+    const balancePaid = (ticket.paidAmount || 0) >= (ticket.totalAmount || 0)
+    if (!balancePaid) {
       console.warn('Cannot generate invoice: Ticket has outstanding balance')
       return null
     }
 
     const invoices = this.getInvoices()
     const subtotal = laborCost + partsCost
-    const taxRate = 0.08 // 8% tax
+    const taxRate = 0.20 // 20% tax
     const taxAmount = subtotal * taxRate
     const totalAmount = subtotal + taxAmount
 
@@ -159,25 +204,45 @@ export class InvoiceService {
 
     const newInvoice: Invoice = {
       id: `INV-${Date.now()}`,
-      repairTicketId: ticket.id,
-      trackingId: ticket.trackingId,
+      invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
+      invoiceDate: new Date().toISOString(),
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
       customerName: ticket.customerName || `${ticket.customerFirstname || ""} ${ticket.customerSurname || ""}`.trim(),
-      customerFirstname: ticket.customerFirstname,
-      customerSurname: ticket.customerSurname,
       customerEmail: ticket.customerEmail,
       customerPhone: ticket.customerPhone,
-      deviceInfo: `${ticket.deviceBrand} ${ticket.deviceModel}`,
+      deviceInfo: `${ticket.deviceBrand || ''} ${ticket.deviceModel || ''}`.trim(),
+      trackingId: ticket.trackingId || '',
+      items: [
+        {
+          description: 'Labor',
+          quantity: 1,
+          unitPrice: laborCost,
+          amount: laborCost
+        },
+        {
+          description: 'Parts',
+          quantity: 1,
+          unitPrice: partsCost,
+          amount: partsCost
+        }
+      ],
+      subtotal,
+      tax: taxAmount,
+      taxRate: taxRate * 100, // Convert to percentage
+      discount: 0,
+      total: totalAmount,
+      paymentStatus: "paid",
+      paymentMethod: ticket.payments?.[0]?.method || "cash",
+      repairTicketId: ticket.id,
       issueDescription: ticket.issueDescription,
       laborCost,
       partsCost,
       taxAmount,
       totalAmount,
-      paymentStatus: "paid", // Since we check for full payment before creating
-      paymentMethod: ticket.payments?.[0]?.method || "unknown",
-      paidAt: new Date().toISOString(),
-      dueDate: new Date().toISOString(),
+      status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      payments: ticket.payments || []
     }
 
     invoices.push(newInvoice)
@@ -185,34 +250,35 @@ export class InvoiceService {
     return newInvoice
   }
 
-  static updateInvoice(id: string, updates: Partial<Invoice>): Invoice | null {
+  static updateInvoice(id: string, updates: Partial<Omit<Invoice, 'id' | 'createdAt'>>): Invoice | null {
     const invoices = this.getInvoices()
     const index = invoices.findIndex((inv) => inv.id === id)
 
     if (index === -1) return null
 
-    invoices[index] = {
-      ...invoices[index],
+    // Only allow updates to certain fields
+    const allowedUpdates: Partial<Omit<Invoice, 'id' | 'createdAt'>> = {
       ...updates,
       updatedAt: new Date().toISOString(),
+      // Ensure required fields are not removed
+      invoiceNumber: updates.invoiceNumber || invoices[index].invoiceNumber,
+      customerName: updates.customerName || invoices[index].customerName,
+      total: updates.total ?? invoices[index].total
     }
 
+    // If payment status is being updated to 'paid', set paidAt
+    if (updates.paymentStatus === 'paid' && invoices[index].paymentStatus !== 'paid') {
+      allowedUpdates.paidAt = new Date().toISOString()
+    }
+
+    const updatedInvoice = {
+      ...invoices[index],
+      ...allowedUpdates
+    }
+
+    invoices[index] = updatedInvoice
     this.saveInvoices(invoices)
-    return invoices[index]
-  }
-
-  static getInvoiceById(id: string): Invoice | null {
-    const invoices = this.getInvoices()
-    const invoice = invoices.find((inv) => inv.id === id)
-    if (!invoice) return null
-    
-    // Add related payments
-    const payments = this.getPaymentsByInvoiceId(id)
-    return {
-      ...invoice,
-      payments,
-      totalPaid: payments.reduce((sum, payment) => sum + payment.amount, 0)
-    }
+    return updatedInvoice
   }
 
   static getPaymentsByInvoiceId(invoiceId: string) {
@@ -232,34 +298,48 @@ export class InvoiceService {
     transactionId?: string,
   ): Payment {
     const payments = this.getPayments()
-    const invoices = this.getInvoices()
+    const invoice = this.getInvoiceById(invoiceId)
+    
+    if (!invoice) {
+      throw new Error(`Invoice with ID ${invoiceId} not found`)
+    }
 
     const payment: Payment = {
-      id: Date.now().toString(),
+      id: `PAY-${Date.now()}`,
       invoiceId,
       amount,
       method,
-      transactionId,
-      status: "completed",
-      processedAt: new Date().toISOString(),
+      transactionId: transactionId || undefined,
+      paymentDate: new Date().toISOString(),
+      status: 'completed',
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
 
-    // Update invoice payment status
-    const invoiceIndex = invoices.findIndex((inv) => inv.id === invoiceId)
-    if (invoiceIndex !== -1) {
-      invoices[invoiceIndex] = {
-        ...invoices[invoiceIndex],
-        paymentStatus: "paid",
-        paymentMethod: method,
-        paidAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-      this.saveInvoices(invoices)
+    // Add payment to the invoice
+    const updatedInvoice: Invoice = {
+      ...invoice,
+      payments: [...(invoice.payments || []), payment],
+      paymentMethod: method,
+      updatedAt: new Date().toISOString()
     }
 
+    // Update invoice status if fully paid
+    const totalPaid = (invoice.payments || []).reduce((sum, p) => sum + p.amount, 0) + amount
+    if (totalPaid >= invoice.total) {
+      updatedInvoice.paymentStatus = 'paid'
+      updatedInvoice.status = 'paid'
+    } else if (totalPaid > 0) {
+      updatedInvoice.paymentStatus = 'partially_paid'
+    }
+
+    // Update the invoice
+    this.updateInvoice(invoiceId, updatedInvoice)
+
+    // Save the payment
     payments.push(payment)
     this.savePayments(payments)
+
     return payment
   }
 
@@ -276,11 +356,30 @@ export class InvoiceService {
 
   static deleteInvoice(id: string): boolean {
     const invoices = this.getInvoices()
-    const filteredInvoices = invoices.filter((inv) => inv.id !== id)
-
-    if (filteredInvoices.length === invoices.length) return false
-
-    this.saveInvoices(filteredInvoices)
+    const invoiceToDelete = invoices.find(inv => inv.id === id)
+    
+    if (!invoiceToDelete) return false
+    
+    // If this invoice is linked to a repair ticket, update the ticket
+    if (invoiceToDelete.repairTicketId) {
+      try {
+        const ticket = RepairService.getTicketById(invoiceToDelete.repairTicketId)
+        if (ticket) {
+          // Reset ticket status if needed
+          const updatedTicket = {
+            ...ticket,
+            status: 'completed', // or whatever status is appropriate
+            updatedAt: new Date().toISOString()
+          }
+          RepairService.updateTicket(ticket.id, updatedTicket)
+        }
+      } catch (error) {
+        console.error('Error updating repair ticket after invoice deletion:', error)
+      }
+    }
+    
+    const filtered = invoices.filter((inv) => inv.id !== id)
+    this.saveInvoices(filtered)
     return true
   }
 }
