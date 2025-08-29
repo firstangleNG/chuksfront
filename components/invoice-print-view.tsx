@@ -35,7 +35,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
           <div className="flex items-center gap-1 mb-0">
             <div className="relative w-8 h-8">
               <Image 
-                src="/letterhead.jpeg" 
+                src="/computerhub.png" 
                 alt="Chukticketingsystem Logo" 
                 fill
                 className="object-contain rounded"

@@ -1,6 +1,41 @@
-import type { Invoice, Payment, RepairTicket } from "@/types"
-
+import type { Payment, RepairTicket } from "@/types"
+import { RepairService } from "./repair-service"
 import { migrateLocalStorageKey } from "./storage-migration"
+
+export interface Invoice {
+  id: string
+  invoiceNumber: string
+  invoiceDate: string
+  dueDate: string
+  customerName: string
+  customerEmail?: string
+  customerPhone?: string
+  deviceInfo: string
+  trackingId: string
+  items: Array<{
+    description: string
+    quantity: number
+    unitPrice: number
+    amount: number
+  }>
+  subtotal: number
+  tax: number
+  discount: number
+  total: number
+  paymentMethod: string
+  paymentStatus: 'pending' | 'paid' | 'overdue'
+  notes?: string
+  repairTicketId?: string
+  issueDescription?: string
+  laborCost?: number
+  partsCost?: number
+  taxAmount?: number
+  totalAmount?: number
+  status: string
+  createdAt: string
+  updatedAt: string
+  payments: any[]
+}
 
 const INVOICES_STORAGE_KEY = "computerhub_invoices"
 const PAYMENTS_STORAGE_KEY = "computerhub_payments"
@@ -10,7 +45,69 @@ if (typeof window !== "undefined") {
   migrateLocalStorageKey("repairhub_payments", PAYMENTS_STORAGE_KEY)
 }
 
+export interface InvoiceInput {
+  invoiceNumber: string
+  invoiceDate: string
+  dueDate: string
+  customerName: string
+  customerEmail?: string
+  customerPhone?: string
+  deviceInfo: string
+  trackingId: string
+  items: Array<{
+    description: string
+    quantity: number
+    unitPrice: number
+    amount: number
+  }>
+  subtotal: number
+  tax: number
+  discount: number
+  total: number
+  paymentMethod: string
+  paymentStatus: 'pending' | 'paid' | 'overdue'
+  notes?: string
+  repairTicketId?: string
+}
+
 export class InvoiceService {
+  static createInvoice(invoiceData: InvoiceInput) {
+    const invoices = this.getInvoices()
+    const newInvoice: Invoice = {
+      ...invoiceData,
+      id: `INV-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'active',
+      payments: [],
+      issueDescription: invoiceData.items.map(item => item.description).join(', '),
+      laborCost: invoiceData.items.find(item => item.description.toLowerCase().includes('labor'))?.amount || 0,
+      partsCost: invoiceData.items.find(item => !item.description.toLowerCase().includes('labor'))?.amount || 0,
+      taxAmount: invoiceData.tax,
+      totalAmount: invoiceData.total
+    }
+    
+    invoices.push(newInvoice)
+    this.saveInvoices(invoices)
+    
+    // If there's a repair ticket ID, update the ticket's invoice status
+    if (invoiceData.repairTicketId) {
+      try {
+        // Assuming you have a RepairService with updateTicket method
+        const ticket = RepairService.getTicketById(invoiceData.repairTicketId)
+        if (ticket) {
+          ticket.invoiceId = newInvoice.id
+          ticket.updatedAt = new Date().toISOString()
+          RepairService.updateTicket(ticket.id, ticket)
+        }
+      } catch (error) {
+        console.error('Error updating repair ticket:', error)
+      }
+    }
+    
+    return newInvoice
+  }
+
   static getInvoices(): Invoice[] {
     if (typeof window === "undefined") return []
     const stored = localStorage.getItem(INVOICES_STORAGE_KEY)
