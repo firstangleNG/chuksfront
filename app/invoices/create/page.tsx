@@ -42,6 +42,7 @@ export default function CreateInvoicePage() {
   const [invoiceNumber, setInvoiceNumber] = useState("")
   const [invoiceDate, setInvoiceDate] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash')
+  const [paymentAmount, setPaymentAmount] = useState(0)
   const [customerName, setCustomerName] = useState("")
   const [customerEmail, setCustomerEmail] = useState("")
   const [customerPhone, setCustomerPhone] = useState("")
@@ -153,8 +154,35 @@ export default function CreateInvoicePage() {
     })
   }
 
+  const validateForm = () => {
+    if (!customerName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Customer name is required",
+        variant: "destructive",
+      })
+      return false
+    }
+    
+    if (items.some(item => !item.description.trim() || item.amount <= 0)) {
+      toast({
+        title: "Validation Error",
+        description: "Please ensure all items have a description and valid amount",
+        variant: "destructive",
+      })
+      return false
+    }
+    
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateForm()) {
+      return
+    }
+    
     setIsLoading(true)
 
     try {
@@ -183,22 +211,26 @@ export default function CreateInvoicePage() {
 
       const createdInvoice = await InvoiceService.createInvoice(invoiceData)
       
-      toast({
-        title: "Success",
-        description: "Invoice created successfully!",
-      })
+      // Process payment if amount is greater than 0
+      if (paymentAmount > 0) {
+        await InvoiceService.processPayment(
+          createdInvoice.id,
+          paymentAmount,
+          paymentMethod
+        )
+      }
       
       // Store the created invoice ID for the print view
       setCreatedInvoiceId(createdInvoice.id)
       
-      // Show success message
+      // Show success message and redirect
       toast({
         title: "Success",
         description: "Invoice created successfully! Redirecting to invoices...",
         duration: 2000,
       })
       
-      // Redirect to invoice list after a short delay
+      // Redirect to invoices list after a short delay
       setTimeout(() => {
         router.push('/invoices')
       }, 1500)
@@ -263,19 +295,38 @@ export default function CreateInvoicePage() {
                 <Label htmlFor="paymentMethod">Payment Method</Label>
                 <Select
                   value={paymentMethod}
-                  onValueChange={(value: PaymentMethod) => setPaymentMethod(value)}
+                  onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="card">Credit/Debit Card</SelectItem>
+                    <SelectItem value="card">Card</SelectItem>
                     <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="paymentAmount">Payment Amount</Label>
+              <Input
+                id="paymentAmount"
+                type="number"
+                min="0"
+                step="0.01"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
+                placeholder="Enter payment amount"
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave as 0 to create an unpaid invoice
+              </p>
+            </div>
+
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="taxRate">Tax Rate (%)</Label>
                 <Input
@@ -462,8 +513,8 @@ export default function CreateInvoicePage() {
           </CardContent>
         </Card>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-4">
+        {/* Submit Button */}
+        <div className="flex justify-end gap-4 pt-6">
           <Button
             type="button"
             variant="outline"

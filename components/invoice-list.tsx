@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Printer } from "lucide-react"
+import { Printer, Mail } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -302,7 +302,7 @@ export function InvoiceList({ onViewInvoice, onProcessPayment }: InvoiceListProp
                   <p className="text-sm font-medium">Issue Description</p>
                   <p className="text-sm text-muted-foreground">{invoice.issueDescription}</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -311,12 +311,40 @@ export function InvoiceList({ onViewInvoice, onProcessPayment }: InvoiceListProp
                     title={!['admin', 'superadmin'].includes(userRole) ? 'Admin access required' : 'View invoice details'}
                   >
                     <Eye className="h-4 w-4 mr-2" />
-                    View Details
+                    View
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => window.print()}
+                    title="Print Invoice"
+                  >
+                    <Printer className="h-4 w-4 mr-2" />
+                    Print
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Add email functionality here
+                      alert('Email functionality will be implemented here');
+                    }}
+                    title="Email Invoice"
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email
                   </Button>
                   {invoice.paymentStatus === "pending" && (
-                    <Button size="sm" onClick={() => onProcessPayment?.(invoice)}>
+                    <Button 
+                      size="sm" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onProcessPayment?.(invoice);
+                      }}
+                    >
                       <DollarSign className="h-4 w-4 mr-2" />
-                      Process Payment
+                      Pay
                     </Button>
                   )}
                 </div>
@@ -348,13 +376,9 @@ export function InvoiceList({ onViewInvoice, onProcessPayment }: InvoiceListProp
           )}
         </div>
         
-        {/* Fixed action buttons at the bottom */}
-        <div className="sticky bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-end gap-3 print:hidden">
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" />
-            Print Invoice
-          </Button>
-          <Button onClick={handleCloseViewer}>
+        {/* Close button at the bottom */}
+        <div className="sticky bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-end">
+          <Button variant="outline" onClick={handleCloseViewer}>
             Close
           </Button>
         </div>

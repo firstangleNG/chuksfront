@@ -28,7 +28,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
                   (invoice.paymentStatus === 'pending' && new Date(invoice.dueDate) < new Date())
 
   return (
-    <div className="bg-white p-2 max-w-3xl mx-auto text-2xs" style={{ lineHeight: '1.2' }}>
+    <div className="bg-white p-2 max-w-3xl mx-auto text-[11px]" style={{ lineHeight: '1.2' }}>
       {/* Letterhead */}
       <div className="flex justify-between items-start mb-2 border-b pb-1">
         <div>
@@ -42,31 +42,31 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
                 priority
               />
             </div>
-            <h1 className="text-sm font-bold">Chukticketingsystem</h1>
+            <h1 className="text-[11px] font-bold">Chukticketingsystem</h1>
           </div>
-          <p className="text-2xs text-gray-600">Professional Computer Repairs & IT Services</p>
-          <p className="text-2xs text-gray-600">123 Tech Street, London, UK</p>
-          <p className="text-2xs text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
+          <p className="text-[11px] text-gray-600">Professional Computer Repairs & IT Services</p>
+          <p className="text-[11px] text-gray-600">123 Tech Street, London, UK</p>
+          <p className="text-[11px] text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
         </div>
         <div className="text-right">
-          <h2 className="text-sm font-semibold">INVOICE</h2>
-          <p className="text-2xs">#{invoice.trackingId}</p>
-          <p className="text-2xs">Date: {format(new Date(invoice.createdAt), 'dd/MM/yyyy')}</p>
-          <p className="text-2xs">Due: {format(new Date(invoice.dueDate), 'dd/MM/yyyy')}</p>
+          <h2 className="text-[11px] font-semibold">INVOICE</h2>
+          <p className="text-[11px]">#{invoice.trackingId}</p>
+          <p className="text-[11px]">Date: {format(new Date(invoice.createdAt), 'dd/MM/yyyy')}</p>
+          <p className="text-[11px]">Due: {format(new Date(invoice.dueDate), 'dd/MM/yyyy')}</p>
         </div>
       </div>
 
       {/* Customer Info */}
       <div className="flex justify-between mt-2">
         <div className="w-1/2">
-          <h3 className="text-xs font-semibold text-gray-700 mb-1">Bill To:</h3>
-          <p className="text-xs font-medium">{invoice.customerName}</p>
-          {invoice.customerEmail && <p className="text-xs text-gray-600">{invoice.customerEmail}</p>}
-          {invoice.customerPhone && <p className="text-xs text-gray-600">{invoice.customerPhone}</p>}
+          <h3 className="text-[11px] font-semibold text-gray-700 mb-1">Bill To:</h3>
+          <p className="text-[11px] font-medium">{invoice.customerName}</p>
+          {invoice.customerEmail && <p className="text-[11px] text-gray-600">{invoice.customerEmail}</p>}
+          {invoice.customerPhone && <p className="text-[11px] text-gray-600">{invoice.customerPhone}</p>}
         </div>
         <div className="text-right">
-          <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-xs">
-            <p className="text-gray-600">Invoice #:</p>
+          <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+            <p className="text-[11px] text-gray-600">Invoice #:</p>
             <p className="font-medium">{invoice.trackingId || invoice.id}</p>
             
             <p className="text-gray-600">Date:</p>
@@ -93,7 +93,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
 
       {/* Invoice Items */}
       <div className="mb-4">
-        <table className="w-full border-collapse text-2xs">
+        <table className="w-full border-collapse text-[11px]">
           <thead>
             <tr className="bg-gray-100">
               <th className="text-left p-1 border">Description</th>
@@ -126,16 +126,16 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
         <h3 className="text-sm font-semibold mb-2">Payment Information</h3>
         <div className="grid md:grid-cols-3 gap-2">
           <div className="p-2 bg-white rounded border">
-            <p className="text-2xs text-gray-500">Invoice Total</p>
-            <p className="text-sm font-semibold">£{invoice.totalAmount.toFixed(2)}</p>
+            <p className="text-[11px] text-gray-500">Invoice Total</p>
+            <p className="text-[11px] font-semibold">£{invoice.totalAmount.toFixed(2)}</p>
           </div>
           <div className="p-2 bg-white rounded border">
-            <p className="text-2xs text-gray-500">Amount Paid</p>
-            <p className="text-sm font-semibold text-green-600">£{(invoice.totalPaid || 0).toFixed(2)}</p>
+            <p className="text-[11px] text-gray-500">Amount Paid</p>
+            <p className="text-[11px] font-semibold text-green-600">£{(invoice.totalPaid || 0).toFixed(2)}</p>
           </div>
           <div className="p-2 bg-white rounded border">
-            <p className="text-2xs text-gray-500">Balance Due</p>
-            <p className={`text-sm font-semibold ${balanceDue > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <p className="text-[11px] text-gray-500">Balance Due</p>
+            <p className={`text-[11px] font-semibold ${balanceDue > 0 ? 'text-red-600' : 'text-green-600'}`}>
               £{Math.max(0, balanceDue).toFixed(2)}
             </p>
           </div>
@@ -149,7 +149,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
           ) : (
             <Clock className="h-4 w-4 text-yellow-500" />
           )}
-          <span className={`text-2xs font-medium ${
+          <span className={`text-[11px] font-medium ${
             isPaid ? 'text-green-700' : isOverdue ? 'text-red-700' : 'text-yellow-700'
           }`}>
             {isPaid 
@@ -164,22 +164,22 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
       {/* Payment History */}
       {invoice.payments && invoice.payments.length > 0 && (
         <div className="mb-4">
-          <h3 className="text-sm font-semibold mb-1">Payment History</h3>
+          <h3 className="text-[11px] font-semibold mb-1">Payment History</h3>
           <div className="mt-1">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-2xs">
+              <table className="min-w-full divide-y divide-gray-200 text-[11px]">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-1 py-0.5 text-left text-2xs font-medium text-gray-500 uppercase">
+                    <th scope="col" className="px-1 py-0.5 text-left text-[11px] font-medium text-gray-500 uppercase">
                       Description
                     </th>
-                    <th scope="col" className="px-1 py-0.5 text-right text-2xs font-medium text-gray-500 uppercase">
+                    <th scope="col" className="px-1 py-0.5 text-right text-[11px] font-medium text-gray-500 uppercase">
                       Qty
                     </th>
-                    <th scope="col" className="px-1 py-0.5 text-right text-2xs font-medium text-gray-500 uppercase">
+                    <th scope="col" className="px-1 py-0.5 text-right text-[11px] font-medium text-gray-500 uppercase">
                       Rate
                     </th>
-                    <th scope="col" className="px-1 py-0.5 text-right text-2xs font-medium text-gray-500 uppercase">
+                    <th scope="col" className="px-1 py-0.5 text-right text-[11px] font-medium text-gray-500 uppercase">
                       Amount
                     </th>
                   </tr>
@@ -187,17 +187,17 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
                 <tbody className="divide-y">
                   {invoice.payments.map((payment: Payment) => (
                     <tr key={payment.id}>
-                      <td className="p-1 text-2xs">
+                      <td className="p-1 text-[11px]">
                         {format(new Date(payment.processedAt || payment.createdAt), 'dd/MM/yyyy')}
                       </td>
-                      <td className="p-1 text-2xs capitalize">
+                      <td className="p-1 text-[11px] capitalize">
                         {payment.method.replace('_', ' ')}
                       </td>
-                      <td className="p-1 text-2xs text-right">
+                      <td className="p-1 text-[11px] text-right">
                         £{payment.amount.toFixed(2)}
                       </td>
                       <td className="p-1 text-right">
-                        <span className={`inline-flex items-center px-1 py-0.5 rounded-full text-2xs font-medium ${
+                        <span className={`inline-flex items-center px-1 py-0.5 rounded-full text-[11px] font-medium ${
                           payment.status === 'completed' 
                             ? 'bg-green-100 text-green-800' 
                             : payment.status === 'failed'
