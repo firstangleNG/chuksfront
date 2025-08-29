@@ -8,12 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Printer, ArrowLeft } from "lucide-react"
 import "./print.css"
 
-export const metadata = {
-  title: 'Invoice - ComputerHub',
-  description: 'View and print your invoice',
-  viewport: 'width=device-width, initial-scale=1',
-}
-
 export default function InvoicePrintPage() {
   const { id } = useParams()
   const router = useRouter()
