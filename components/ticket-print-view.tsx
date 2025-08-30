@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { SettingsService } from "@/lib/settings-service"
 import { useEffect, useState } from "react"
-import Image from "next/image" // FIX: Import the correct Image component
+import Image from "next/image"
 
 interface TicketPrintViewProps {
   ticket: RepairTicket
@@ -33,13 +33,57 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
   }
 
   return (
-    <div className="bg-white p-2 max-w-3xl mx-auto text-[11px]" style={{ lineHeight: '1.2' }}>
+    <div
+      className="bg-white p-2 max-w-3xl mx-auto text-[11px]"
+      style={{ lineHeight: '1.2' }}
+    >
+      <style>
+        {`
+        @media print {
+          html, body {
+            background: #fff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+          }
+          .ticket-print-hide { display: none !important; }
+          .ticket-print-card {
+            border: 1px solid #e5e7eb !important;
+            box-shadow: none !important;
+            page-break-inside: avoid !important;
+            background: #fff !important;
+          }
+          .ticket-print-badge {
+            background: #f3f4f6 !important;
+            color: #111827 !important;
+            border: 1px solid #d1d5db !important;
+          }
+          .ticket-print-border-b {
+            border-bottom: 1px solid #e5e7eb !important;
+          }
+          .ticket-print-border-t {
+            border-top: 1px solid #e5e7eb !important;
+          }
+          .bg-gray-50 {
+            background-color: #f9fafb !important;
+          }
+          .text-gray-600 {
+            color: #4b5563 !important;
+          }
+          .text-gray-500 {
+            color: #6b7280 !important;
+          }
+        }
+        `}
+      </style>
       {/* Letterhead */}
-      <div className="flex justify-between items-start mb-2 border-b pb-1">
+      <div className="flex justify-between items-start mb-2 ticket-print-border-b pb-1">
         <div>
           <div className="flex items-center gap-1 mb-0">
             <div className="relative w-8 h-8">
-              {/* FIX: Use next/image instead of Img, and correct the src path */}
               <Image
                 src="/computer_hub_new.jpeg"
                 alt="Chukticketingsystem Logo"
@@ -63,10 +107,10 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
       </div>
 
       {/* Ticket Info */}
-      <Card className="mb-4 p-2">
-        <div className="flex justify-between items-center pb-2 border-b">
+      <div className="ticket-print-card mb-4 p-2 border rounded">
+        <div className="flex justify-between items-center pb-2 ticket-print-border-b">
           <h3 className="text-[11px] font-semibold">Repair Ticket</h3>
-          <Badge className="text-[11px] px-2 py-0.5">{ticket.trackingId}</Badge>
+          <span className="ticket-print-badge text-[11px] px-2 py-0.5 rounded border">{ticket.trackingId}</span>
         </div>
         <div className="p-2">
           <div className="grid grid-cols-2 gap-4">
@@ -96,11 +140,11 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
             </div>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Repair Details */}
-      <Card className="mb-4 p-2">
-        <div className="pb-2 border-b">
+      <div className="ticket-print-card mb-4 p-2 border rounded">
+        <div className="pb-2 ticket-print-border-b">
           <h3 className="text-[11px] font-semibold">Repair Details</h3>
         </div>
         <div className="p-2 space-y-2">
@@ -111,7 +155,9 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
               </p>
               <p className="text-[11px] flex items-center">
                 <span className="font-medium">Status:</span>
-                <Badge className="ml-1 h-4 text-[11px] px-1.5">{ticket.status.replace("-", " ").toUpperCase()}</Badge>
+                <span className="ticket-print-badge ml-1 h-4 text-[11px] px-1.5 rounded border">
+                  {ticket.status.replace("-", " ").toUpperCase()}
+                </span>
               </p>
             </div>
             <div className="space-y-1">
@@ -131,12 +177,12 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
             <span className="font-medium">Technician:</span> {ticket.assignedTechnician || 'Not assigned'}
           </p>
         </div>
-      </Card>
+      </div>
 
       {/* Payment Information */}
       {ticket.payments && ticket.payments.length > 0 && (
-        <Card className="mb-4 p-2">
-          <div className="pb-2 border-b">
+        <div className="ticket-print-card mb-4 p-2 border rounded">
+          <div className="pb-2 ticket-print-border-b">
             <h3 className="text-[11px] font-semibold">Payment Information</h3>
           </div>
           <div className="p-2 space-y-2">
@@ -149,7 +195,7 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
                 <p className="font-semibold">£{Number(payment.amount).toFixed(2)}</p>
               </div>
             ))}
-            <div className="border-t pt-2 space-y-1">
+            <div className="ticket-print-border-t pt-2 space-y-1">
               <div className="flex justify-between items-center text-[11px]">
                 <span>Total Paid:</span>
                 <span className="font-semibold">£{formatted.totalPaid}</span>
@@ -160,12 +206,12 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Terms and Conditions */}
-      <Card className="p-2">
-        <div className="pb-2 border-b">
+      <div className="ticket-print-card p-2 border rounded">
+        <div className="pb-2 ticket-print-border-b">
           <h3 className="text-[11px] font-semibold">Terms and Conditions</h3>
         </div>
         <div className="p-2">
@@ -178,10 +224,10 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
             ))}
           </ul>
         </div>
-      </Card>
+      </div>
 
       {/* Footer */}
-      <div className="text-center mt-4 pt-2 border-t text-[11px] text-gray-500">
+      <div className="text-center mt-4 pt-2 ticket-print-border-t text-[11px] text-gray-500">
         <p>Thank you for choosing Chukticketingsystem for your repair needs!</p>
         <p>Contact us: info@Chukticketingsystem.com | +44 123 456 7890</p>
       </div>
