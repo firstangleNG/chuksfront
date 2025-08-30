@@ -35,7 +35,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
           <div className="flex items-center gap-1 mb-0">
             <div className="relative w-8 h-8">
               <Image 
-                src="/computerhub.png" 
+                src="/computer_hub_new.jpeg" 
                 alt="Chukticketingsystem Logo" 
                 fill
                 className="object-contain rounded"
@@ -61,12 +61,12 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
         <div className="w-1/2">
           <h3 className="text-[11px] font-semibold text-gray-700 mb-1">Bill To:</h3>
           <p className="text-[11px] font-medium">{invoice.customerName}</p>
-          {invoice.customerEmail && <p className="text-[11px] text-gray-600">{invoice.customerEmail}</p>}
-          {invoice.customerPhone && <p className="text-[11px] text-gray-600">{invoice.customerPhone}</p>}
+          {invoice.customerEmail && <p className="text-[9px] text-gray-600">{invoice.customerEmail}</p>}
+          {invoice.customerPhone && <p className="text-[9px] text-gray-600">{invoice.customerPhone}</p>}
         </div>
         <div className="text-right">
           <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
-            <p className="text-[11px] text-gray-600">Invoice #:</p>
+            <p className="text-[9px] text-gray-600">Invoice #:</p>
             <p className="font-medium">{invoice.trackingId || invoice.id}</p>
             
             <p className="text-gray-600">Date:</p>
@@ -93,7 +93,7 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
 
       {/* Invoice Items */}
       <div className="mb-4">
-        <table className="w-full border-collapse text-[11px]">
+        <table className="w-full border-collapse text-[9px]">
           <thead>
             <tr className="bg-gray-100">
               <th className="text-left p-1 border">Description</th>
@@ -164,10 +164,10 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
       {/* Payment History */}
       {invoice.payments && invoice.payments.length > 0 && (
         <div className="mb-4">
-          <h3 className="text-[11px] font-semibold mb-1">Payment History</h3>
+          <h3 className="text-[9px] font-semibold mb-1">Payment History</h3>
           <div className="mt-1">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-[11px]">
+              <table className="min-w-full divide-y divide-gray-200 text-[9px]">
                 <thead className="bg-gray-50">
                   <tr>
                     <th scope="col" className="px-1 py-0.5 text-left text-[11px] font-medium text-gray-500 uppercase">
@@ -190,14 +190,14 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
                       <td className="p-1 text-[11px]">
                         {format(new Date(payment.processedAt || payment.createdAt), 'dd/MM/yyyy')}
                       </td>
-                      <td className="p-1 text-[11px] capitalize">
+                      <td className="p-1 text-[9px] capitalize">
                         {payment.method.replace('_', ' ')}
                       </td>
-                      <td className="p-1 text-[11px] text-right">
+                      <td className="p-1 text-[9px] text-right">
                         £{payment.amount.toFixed(2)}
                       </td>
                       <td className="p-1 text-right">
-                        <span className={`inline-flex items-center px-1 py-0.5 rounded-full text-[11px] font-medium ${
+                        <span className={`inline-flex items-center px-1 py-0.5 rounded-full text-[9px] font-medium ${
                           payment.status === 'completed' 
                             ? 'bg-green-100 text-green-800' 
                             : payment.status === 'failed'
