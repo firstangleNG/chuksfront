@@ -37,8 +37,15 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
       <div className="mb-4">
         <div className="flex justify-between items-start">
           <div>
-            <div className="flex items-center gap-1">
-              <h1 className="text-[11px] font-bold text-gray-800">Chukticketingsystem</h1>
+           <div className="flex items-center gap-1 mb-0">
+            <div className="relative w-8 h-8">
+              <Image 
+                src="/computer_hub_new.jpeg" 
+                alt="Computerhubuk Logo" 
+                fill
+                className="object-contain rounded"
+                priority
+              />
             </div>
             <p className="text-[11px] text-gray-600">Professional Repair Services</p>
             <p className="text-[11px] text-gray-500">123 Tech Lane, Innovation City, UK</p>
