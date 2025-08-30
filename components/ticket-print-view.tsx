@@ -32,7 +32,7 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-white text-black text-[11px]" style={{ lineHeight: '1.2' }}>
+    <div className="bg-white p-2 max-w-3xl mx-auto text-[11px]" style={{ lineHeight: '1.2' }}>
       {/* Letterhead Section */}
       <div className="mb-4">
         <div className="flex justify-between items-start">
