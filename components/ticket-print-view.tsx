@@ -32,25 +32,33 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
   }
 
   return (
-   <div className="max-w-3xl mx-auto p-4 bg-white text-black text-[11px]" style={{ lineHeight: '1.2' }}>
-      {/* Letterhead Section */}
-      <div className="mb-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-1">
-              <h1 className="text-[11px] font-bold text-gray-800">Chukticketingsystem</h1>
+   <div className="bg-white p-2 max-w-3xl mx-auto text-[11px]" style={{ lineHeight: '1.2' }}>
+      {/* Letterhead */}
+      <div className="flex justify-between items-start mb-2 border-b pb-1">
+        <div>
+          <div className="flex items-center gap-1 mb-0">
+            <div className="relative w-8 h-8">
+              <Image 
+                src="/computer_hub_new.jpeg" 
+                alt="Chukticketingsystem Logo" 
+                fill
+                className="object-contain rounded"
+                priority
+              />
             </div>
-            <p className="text-[11px] text-gray-600">Professional Repair Services</p>
-            <p className="text-[11px] text-gray-500">123 Tech Lane, Innovation City, UK</p>
-            <p className="text-[11px] text-gray-500">Phone: +44 123 456 7890 | Email: info@repairhubsolutions.com</p>
+            <h1 className="text-[11px] font-bold">Chukticketingsystem</h1>
           </div>
-          <div className="text-right">
-            <div className="text-[11px] text-gray-600">Date: {currentDate}</div>
-            <div className="text-[11px] font-semibold mt-1">Repair Ticket</div>
-            <div className="text-[11px] font-bold">{ticket.trackingId}</div>
-          </div>
+          <p className="text-[11px] text-gray-600">Professional Computer Repairs & IT Services</p>
+          <p className="text-[11px] text-gray-600">123 Tech Street, London, UK</p>
+          <p className="text-[11px] text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
         </div>
-      </div
+        <div className="text-right">
+          <h2 className="text-[11px] font-semibold">INVOICE</h2>
+          <p className="text-[11px]">#{invoice.trackingId}</p>
+          <p className="text-[11px]">Date: {format(new Date(invoice.createdAt), 'dd/MM/yyyy')}</p>
+          <p className="text-[11px]">Due: {format(new Date(invoice.dueDate), 'dd/MM/yyyy')}</p>
+        </div>
+      </div>
 
       {/* Ticket Info */}
       <Card className="mb-4 p-2">
