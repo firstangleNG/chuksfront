@@ -4,8 +4,9 @@ import type { RepairTicket } from "@/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { SettingsService } from "@/lib/settings-service" // Import SettingsService
-import { useEffect, useState } from "react" // Import useEffect and useState
+import { SettingsService } from "@/lib/settings-service"
+import { useEffect, useState } from "react"
+import Image from "next/image" // FIX: Import the correct Image component
 
 interface TicketPrintViewProps {
   ticket: RepairTicket
@@ -13,10 +14,10 @@ interface TicketPrintViewProps {
 
 export function TicketPrintView({ ticket }: TicketPrintViewProps) {
   const currentDate = new Date().toLocaleDateString("en-GB")
-  const [termsAndConditions, setTermsAndConditions] = useState<string[]>([]) // State for terms
+  const [termsAndConditions, setTermsAndConditions] = useState<string[]>([])
 
   useEffect(() => {
-    setTermsAndConditions(SettingsService.getTermsAndConditions()) // Fetch terms on mount
+    setTermsAndConditions(SettingsService.getTermsAndConditions())
   }, [])
 
   const displayName = (ticket.customerFirstname || ticket.customerSurname)
@@ -32,29 +33,32 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
   }
 
   return (
-   <div className="bg-white p-2 max-w-3xl mx-auto text-[11px]" style={{ lineHeight: '1.2' }}>
+    <div className="bg-white p-2 max-w-3xl mx-auto text-[11px]" style={{ lineHeight: '1.2' }}>
       {/* Letterhead */}
       <div className="flex justify-between items-start mb-2 border-b pb-1">
         <div>
           <div className="flex items-center gap-1 mb-0">
             <div className="relative w-8 h-8">
-              <Img
-                src="/public/computer_hub_new.jpeg" 
-                alt="Chukticketingsystem Logo" 
+              {/* FIX: Use next/image instead of Img, and correct the src path */}
+              <Image
+                src="/computer_hub_new.jpeg"
+                alt="Chukticketingsystem Logo"
                 fill
                 className="object-contain rounded"
                 priority
               />
             </div>
-          <p className="text-[11px] text-gray-600">Professional Computer Repairs & IT Services</p>
-          <p className="text-[11px] text-gray-600">123 Tech Street, London, UK</p>
-          <p className="text-[11px] text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
+            <div>
+              <p className="text-[11px] text-gray-600">Professional Computer Repairs & IT Services</p>
+              <p className="text-[11px] text-gray-600">123 Tech Street, London, UK</p>
+              <p className="text-[11px] text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
+            </div>
+          </div>
         </div>
         <div className="text-right">
-            <div className="text-[11px] text-gray-600">Date: {currentDate}</div>
-            <div className="text-[11px] font-semibold mt-1">Repair Ticket</div>
-            <div className="text-[11px] font-bold">{ticket.trackingId}</div>
-          </div>
+          <div className="text-[11px] text-gray-600">Date: {currentDate}</div>
+          <div className="text-[11px] font-semibold mt-1">Repair Ticket</div>
+          <div className="text-[11px] font-bold">{ticket.trackingId}</div>
         </div>
       </div>
 
