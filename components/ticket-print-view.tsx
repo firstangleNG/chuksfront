@@ -38,7 +38,7 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
         <div>
           <div className="flex items-center gap-1 mb-0">
             <div className="relative w-8 h-8">
-              <Image 
+              <Img
                 src="/computer_hub_new.jpeg" 
                 alt="Chukticketingsystem Logo" 
                 fill
@@ -53,10 +53,10 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
           <p className="text-[11px] text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
         </div>
         <div className="text-right">
-          <h2 className="text-[11px] font-semibold">INVOICE</h2>
-          <p className="text-[11px]">#{invoice.trackingId}</p>
-          <p className="text-[11px]">Date: {format(new Date(invoice.createdAt), 'dd/MM/yyyy')}</p>
-          <p className="text-[11px]">Due: {format(new Date(invoice.dueDate), 'dd/MM/yyyy')}</p>
+            <div className="text-[11px] text-gray-600">Date: {currentDate}</div>
+            <div className="text-[11px] font-semibold mt-1">Repair Ticket</div>
+            <div className="text-[11px] font-bold">{ticket.trackingId}</div>
+          </div>
         </div>
       </div>
 
