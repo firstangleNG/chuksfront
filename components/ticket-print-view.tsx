@@ -39,13 +39,14 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
           <div className="flex items-center gap-1 mb-0">
             <div className="relative w-8 h-8">
               <Img
-                src="/computer_hub_new.jpeg" 
+                src="/public/computer_hub_new.jpeg" 
                 alt="Chukticketingsystem Logo" 
                 fill
                 className="object-contain rounded"
                 priority
               />
             </div>
+          <div
           <p className="text-[11px] text-gray-600">Professional Computer Repairs & IT Services</p>
           <p className="text-[11px] text-gray-600">123 Tech Street, London, UK</p>
           <p className="text-[11px] text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
@@ -67,7 +68,7 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
         <div className="p-2">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h4 className="text-[11px] font-semibold mb-1">Customer Information</h4>
+              <h4 className="text-[9px] font-semibold mb-1">Customer Information</h4>
               <p className="text-[11px]">
                 <span className="font-medium">Name:</span> {displayName}
               </p>
