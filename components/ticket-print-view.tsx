@@ -46,7 +46,6 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
                 priority
               />
             </div>
-        <div
           <p className="text-[11px] text-gray-600">Professional Computer Repairs & IT Services</p>
           <p className="text-[11px] text-gray-600">123 Tech Street, London, UK</p>
           <p className="text-[11px] text-gray-600">Phone: 020 1234 5678 | Email: info@Chukticketingsystem.com</p>
