@@ -42,7 +42,6 @@ export function InvoicePrintView({ invoice, onClose }: InvoicePrintViewProps) {
                 priority
               />
             </div>
-            <h1 className="text-[11px] font-bold">Chukticketingsystem</h1>
           </div>
           <p className="text-[11px] text-gray-600">Professional Computer Repairs & IT Services</p>
           <p className="text-[11px] text-gray-600">123 Tech Street, London, UK</p>
