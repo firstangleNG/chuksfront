@@ -32,20 +32,13 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
   }
 
   return (
-    <div className="bg-white p-2 max-w-3xl mx-auto text-[11px]" style={{ lineHeight: '1.2' }}>
-    {/* Letterhead Section */}
+   <div className="max-w-3xl mx-auto p-4 bg-white text-black text-[11px]" style={{ lineHeight: '1.2' }}>
+      {/* Letterhead Section */}
       <div className="mb-4">
         <div className="flex justify-between items-start">
           <div>
-           <div className="flex items-center gap-1 mb-0">
-            <div className="relative w-8 h-8">
-              <Image 
-                src="/computer_hub_new.jpeg" 
-                alt="Computerhubuk Logo" 
-                fill
-                className="object-contain rounded"
-                priority
-              />
+            <div className="flex items-center gap-1">
+              <h1 className="text-[11px] font-bold text-gray-800">Chukticketingsystem</h1>
             </div>
             <p className="text-[11px] text-gray-600">Professional Repair Services</p>
             <p className="text-[11px] text-gray-500">123 Tech Lane, Innovation City, UK</p>
@@ -57,7 +50,7 @@ export function TicketPrintView({ ticket }: TicketPrintViewProps) {
             <div className="text-[11px] font-bold">{ticket.trackingId}</div>
           </div>
         </div>
-      </div>
+      </div
 
       {/* Ticket Info */}
       <Card className="mb-4 p-2">
