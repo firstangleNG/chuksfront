@@ -86,7 +86,7 @@ function TicketPrintView({ ticket }: TicketPrintViewProps) {
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-1">
-              <h1 className="text-[11px] font-bold text-gray-800">Chukticketingsystem</h1>
+              <h1 className="text-[11px] font-bold text-gray-800">ComputerHub UK</h1>
             </div>
             <p className="text-[11px] text-gray-600">Professional Repair Services</p>
             <p className="text-[11px] text-gray-500">123 Tech Lane, Innovation City, UK</p>
